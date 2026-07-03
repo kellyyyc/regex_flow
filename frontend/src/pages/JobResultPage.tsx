@@ -26,7 +26,6 @@ export function JobResultPage() {
         setError("");
 
         const data = await getJobResult(parsedJobId);
-
         if (!cancelled) {
           setResult(data);
         }
@@ -73,48 +72,49 @@ export function JobResultPage() {
             SUCCESS
           </span>
         </div>
-      </section>
-      <div className="mt-6">
-        {isLoading ? (
-          <p className="text-slate-600">Loading result...</p>
-        ) : error ? (
-          <p className="text-red-600">{error}</p>
-        ) : result == null || result.previewRows.length === 0 ? (
-          <p className="text-slate-600">No result rows found.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-left text-sm">
-              <thead>
-                <tr>
-                  {result.columnHeaders.map((column) => (
-                    <th
-                      key={column}
-                      className="border-b border-slate-200 px-3 py-2 font-semibold text-slate-700"
-                    >
-                      {column}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
 
-              <tbody>
-                {result.previewRows.map((row, index) => (
-                  <tr key={index}>
+        <div className="mt-6">
+          {isLoading ? (
+            <p className="text-slate-600">Loading result...</p>
+          ) : error ? (
+            <p className="text-red-600">{error}</p>
+          ) : result == null || result.previewRows.length === 0 ? (
+            <p className="text-slate-600">No result rows found.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-left text-sm">
+                <thead>
+                  <tr>
                     {result.columnHeaders.map((column) => (
-                      <td
+                      <th
                         key={column}
-                        className="border-b border-slate-100 px-3 py-2 text-slate-700"
+                        className="border-b border-slate-200 px-3 py-2 font-semibold text-slate-700"
                       >
-                        {String(row[column] ?? "")}
-                      </td>
+                        {column}
+                      </th>
                     ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+                </thead>
+
+                <tbody>
+                  {result.previewRows.map((row, index) => (
+                    <tr key={index}>
+                      {result.columnHeaders.map((column) => (
+                        <td
+                          key={column}
+                          className="border-b border-slate-100 px-3 py-2 text-slate-700"
+                        >
+                          {String(row[column] ?? "")}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </section>
     </main>
   );
 }
