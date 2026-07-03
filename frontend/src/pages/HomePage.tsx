@@ -1,11 +1,12 @@
 import { useState } from "react";
+import { createProcessingJob } from "../api/jobs";
 import type { SubmitEvent } from "react";
 
 export function HomePage() {
   const [file, setFile] = useState<File | null>(null);
   const [prompt, setPrompt] = useState("");
 
-  const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!file) {
@@ -16,10 +17,13 @@ export function HomePage() {
     formData.append("file", file);
     formData.append("prompt", prompt);
 
-    console.log({
-      file,
-      prompt,
-    });
+    try {
+      const job = await createProcessingJob(file, prompt);
+      console.log(job);
+    } catch (error) {
+      alert(`Failed to create job: ${error}`);
+      console.error("Failed to create job", error);
+    }
   };
 
   return (
