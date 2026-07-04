@@ -1,18 +1,23 @@
+export type JobStatusValue = "QUEUED" | "RUNNING" | "SUCCESS" | "FAILED";
+
 export type CreateJobResponse = {
-  job_id: number;
-  status: string;
+  id: number;
+  fileName: string;
+  status: JobStatusValue;
 };
 
 export type JobStatus = {
   id: number;
-  status: string;
-  progress: number;
+  fileName: string;
+  status: JobStatusValue;
+  numProcessed: number;
+  rowCount: number;
 };
 
 export type JobResult = {
-  jobId: number;
-  originalFileName: string;
-  status: string;
+  id: number;
+  fileName: string;
+  status: JobStatusValue;
 
   regexPattern: string;
   replacement: string;
