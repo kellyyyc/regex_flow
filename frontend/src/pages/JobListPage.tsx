@@ -1,46 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { getAllJobs } from "../api/jobs";
-import type { JobStatusValue, JobStatus } from "../types/jobs";
+import { getStatusClassName, getDescription } from "../shared/utils";
 
-function getStatusClassName(status: JobStatusValue) {
-  switch (status) {
-    case "SUCCESS":
-      return "bg-green-100 text-green-700";
-
-    case "FAILED":
-      return "bg-red-100 text-red-700";
-
-    default:
-      return "bg-orange-100 text-yellow-700";
-  }
-}
-
-function getDescription(
-  status: JobStatusValue,
-  numProcessed: number,
-  rowCount: number,
-) {
-  const processedText = numProcessed.toLocaleString("en-US");
-  const rowCountText = rowCount.toLocaleString("en-US");
-
-  switch (status) {
-    case "SUCCESS":
-      return `Processed all ${rowCountText} rows`;
-
-    case "RUNNING":
-      return `Processed ${processedText} of ${rowCountText} rows`;
-
-    case "QUEUED":
-      return "Queued for processing";
-
-    case "FAILED":
-      return "Could not process file";
-
-    default:
-      return "Unknown job status";
-  }
-}
+import type { JobStatus } from "../types/jobs";
 
 export function JobListPage() {
   const [jobs, setJobs] = useState<JobStatus[]>([]);
