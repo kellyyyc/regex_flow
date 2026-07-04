@@ -18,8 +18,8 @@ export type JobResult = {
   id: number;
   fileName: string;
   status: JobStatusValue;
-  instruction: string;
 
+  instruction: string;
   regexPattern: string;
   replacement: string;
   targetColumns: string[];
