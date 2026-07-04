@@ -76,3 +76,16 @@ def get_job_status(request, job_id):
         )
 
     return Response(serialize_job_status(job))
+
+
+@api_view(["GET"])
+def get_job_result(request, job_id):
+    job = find_job(job_id)
+
+    if job is None:
+        return Response(
+            {"detail": "Job not found."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    return Response(serialize_job_result(job))
