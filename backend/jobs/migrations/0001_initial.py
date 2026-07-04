@@ -7,34 +7,53 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Job',
+            name="Job",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('input_file', models.FileField(upload_to='uploads/')),
-                ('result_file', models.FileField(blank=True, upload_to='results/')),
-                ('file_name', models.CharField(max_length=255)),
-                ('status', models.CharField(choices=[('QUEUED', 'Queued'), ('RUNNING', 'Running'), ('SUCCESS', 'Success'), ('FAILED', 'Failed')], default='QUEUED', max_length=16)),
-                ('instruction', models.TextField()),
-                ('regex_pattern', models.TextField(blank=True)),
-                ('replacement', models.TextField(blank=True)),
-                ('target_columns', models.JSONField(blank=True, default=list)),
-                ('num_processed', models.PositiveBigIntegerField(default=0)),
-                ('row_count', models.PositiveBigIntegerField(default=0)),
-                ('changed_row_count', models.PositiveBigIntegerField(default=0)),
-                ('column_headers', models.JSONField(blank=True, default=list)),
-                ('error_message', models.TextField(blank=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('started_at', models.DateTimeField(blank=True, null=True)),
-                ('completed_at', models.DateTimeField(blank=True, null=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("input_file", models.FileField(upload_to="uploads/")),
+                ("result_file", models.FileField(blank=True, upload_to="results/")),
+                ("file_name", models.CharField(max_length=255)),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("QUEUED", "Queued"),
+                            ("RUNNING", "Running"),
+                            ("SUCCESS", "Success"),
+                            ("FAILED", "Failed"),
+                        ],
+                        default="QUEUED",
+                        max_length=16,
+                    ),
+                ),
+                ("instruction", models.TextField()),
+                ("regex_pattern", models.TextField(blank=True)),
+                ("replacement", models.TextField(blank=True)),
+                ("target_columns", models.JSONField(blank=True, default=list)),
+                ("num_processed", models.PositiveBigIntegerField(default=0)),
+                ("row_count", models.PositiveBigIntegerField(default=0)),
+                ("changed_row_count", models.PositiveBigIntegerField(default=0)),
+                ("column_headers", models.JSONField(blank=True, default=list)),
+                ("error_message", models.TextField(blank=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("started_at", models.DateTimeField(blank=True, null=True)),
+                ("completed_at", models.DateTimeField(blank=True, null=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
             ],
             options={
-                'ordering': ['-created_at'],
+                "ordering": ["-created_at"],
             },
         ),
     ]
