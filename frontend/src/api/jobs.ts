@@ -1,3 +1,4 @@
+import axios from "axios";
 import { api } from "./client";
 
 import type {
@@ -39,6 +40,10 @@ type JobResultApi = {
   error_message?: string;
 };
 
+export function isNotFoundError(err: unknown) {
+  return axios.isAxiosError(err) && err.response?.status === 404;
+}
+
 function mapCreateJobResponse(data: CreateJobResponseApi): CreateJobResponse {
   return {
     id: data.id,
@@ -76,30 +81,62 @@ function mapJobResult(data: JobResultApi): JobResult {
 export const createProcessingJob = async (
   file: File,
   instruction: string,
-): Promise<CreateJobResponse> => {
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("instruction", instruction);
+): Promise<CreateJobResponse | null> => {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("instruction", instruction);
 
-  const response = await api.post<CreateJobResponseApi>("/jobs/", formData);
+    const response = await api.post<CreateJobResponseApi>("/jobs/", formData);
 
-  return mapCreateJobResponse(response.data);
+    return mapCreateJobResponse(response.data);
+  } catch (err) {
+    if (isNotFoundError(err)) {
+      return null;
+    }
+
+    throw err;
+  }
 };
 
-export const getAllJobs = async (): Promise<JobStatus[]> => {
-  const response = await api.get<JobStatusApi[]>("/jobs/");
+export const getAllJobs = async (): Promise<JobStatus[] | null> => {
+  try {
+    const response = await api.get<JobStatusApi[]>("/jobs/");
 
-  return response.data.map(mapJobStatus);
+    return response.data.map(mapJobStatus);
+  } catch (err) {
+    if (isNotFoundError(err)) {
+      return null;
+    }
+
+    throw err;
+  }
 };
 
-export const getJobStatus = async (id: number): Promise<JobStatus> => {
-  const response = await api.get<JobStatusApi>(`/jobs/${id}/`);
+export const getJobStatus = async (id: number): Promise<JobStatus | null> => {
+  try {
+    const response = await api.get<JobStatusApi>(`/jobs/${id}/`);
 
-  return mapJobStatus(response.data);
+    return mapJobStatus(response.data);
+  } catch (err) {
+    if (isNotFoundError(err)) {
+      return null;
+    }
+
+    throw err;
+  }
 };
 
-export const getJobResult = async (id: number): Promise<JobResult> => {
-  const response = await api.get<JobResultApi>(`/jobs/${id}/result/`);
+export const getJobResult = async (id: number): Promise<JobResult | null> => {
+  try {
+    const response = await api.get<JobResultApi>(`/jobs/${id}/result/`);
 
-  return mapJobResult(response.data);
+    return mapJobResult(response.data);
+  } catch (err) {
+    if (isNotFoundError(err)) {
+      return null;
+    }
+
+    throw err;
+  }
 };
