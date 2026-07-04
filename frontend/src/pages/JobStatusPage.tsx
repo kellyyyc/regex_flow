@@ -1,16 +1,20 @@
 import { useEffect, useState } from "react";
 import { Navigate, useParams } from "react-router";
-import { getJobStatus } from "../api/jobs";
-import { getStatusClassName, getDescription } from "../shared/utils";
+import { isNotFoundError, getJobStatus } from "../api/jobs";
+import {
+  getStatusClassName,
+  getPageTitle,
+  getDescription,
+  parseJobId,
+} from "../shared/utils";
 
 import type { JobStatus } from "../types/jobs";
 
 export function JobStatusPage() {
   const { jobId } = useParams();
 
-  const parsedJobId = Number(jobId);
-  const isInvalidJobId =
-    jobId == null || !Number.isInteger(parsedJobId) || parsedJobId <= 0;
+  const parsedJobId = parseJobId(jobId);
+  const isInvalidJobId = parsedJobId == null;
 
   const [job, setJob] = useState<JobStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -25,6 +29,7 @@ export function JobStatusPage() {
       try {
         setIsLoading(true);
         setError("");
+        setJob(null);
 
         const data = await getJobStatus(parsedJobId);
 
@@ -35,7 +40,11 @@ export function JobStatusPage() {
         console.error("Failed to fetch job status", err);
 
         if (!cancelled) {
-          setError("Failed to load job status.");
+          if (isNotFoundError(err)) {
+            setJob(null);
+          } else {
+            setError("Failed to load job status.");
+          }
         }
       } finally {
         if (!cancelled) {
@@ -65,7 +74,7 @@ export function JobStatusPage() {
             </p>
 
             <h1 className="mt-1 text-3xl font-bold text-slate-900">
-              Currently processing
+              {getPageTitle(isLoading, error, job)}
             </h1>
 
             {isLoading ? (
@@ -73,7 +82,7 @@ export function JobStatusPage() {
             ) : error ? (
               <p className="mt-2 text-red-600">{error}</p>
             ) : job == null ? (
-              <p className="text-slate-600">No jobs found.</p>
+              <p className="mt-2 text-slate-600">No status available.</p>
             ) : (
               <p className="mt-2 text-slate-600">
                 {getDescription(job.status, job.numProcessed, job.rowCount)}
@@ -81,13 +90,15 @@ export function JobStatusPage() {
             )}
           </div>
 
-          <span
-            className={`rounded-full px-3 py-1 text-sm font-semibold ${getStatusClassName(
-              job?.status ?? null,
-            )}`}
-          >
-            {job?.status ?? "LOADING"}
-          </span>
+          {job != null && (
+            <span
+              className={`rounded-full px-3 py-1 text-sm font-semibold ${getStatusClassName(
+                job.status,
+              )}`}
+            >
+              {job.status}
+            </span>
+          )}
         </div>
       </section>
     </main>

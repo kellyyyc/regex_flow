@@ -20,7 +20,7 @@ export function JobListPage() {
 
         const data = await getAllJobs();
         if (!cancelled) {
-          setJobs(data);
+          setJobs(data ?? []);
         }
       } catch (err) {
         console.error("Failed to fetch job result", err);
