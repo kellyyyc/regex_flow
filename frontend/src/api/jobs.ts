@@ -26,6 +26,7 @@ type JobResultApi = {
   id: number;
   file_name: string;
   status: JobStatusValue;
+  instruction: string;
 
   regex_pattern: string;
   replacement: string;
@@ -67,6 +68,7 @@ function mapJobResult(data: JobResultApi): JobResult {
     id: data.id,
     fileName: data.file_name,
     status: data.status,
+    instruction: data.instruction,
     regexPattern: data.regex_pattern,
     replacement: data.replacement,
     targetColumns: data.target_columns,

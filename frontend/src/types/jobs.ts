@@ -18,6 +18,7 @@ export type JobResult = {
   id: number;
   fileName: string;
   status: JobStatusValue;
+  instruction: string;
 
   regexPattern: string;
   replacement: string;

@@ -36,6 +36,7 @@ def serialize_job_result(job):
         "id": job["id"],
         "file_name": job["file_name"],
         "status": job["status"],
+        "instruction": job["instruction"],
         "regex_pattern": job["regex_pattern"],
         "replacement": job["replacement"],
         "target_columns": job["target_columns"],
