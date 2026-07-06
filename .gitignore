@@ -29,3 +29,8 @@ __pycache__/
 
 db.sqlite3
 *.sqlite3
+
+backend/media/uploads/*
+backend/media/results/*
+!backend/media/uploads/.gitkeep
+!backend/media/results/.gitkeep
