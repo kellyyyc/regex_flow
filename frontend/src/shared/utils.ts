@@ -75,3 +75,10 @@ export function getDescription(
       return "Unknown job status";
   }
 }
+
+export function formatCreatedDate(value: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(value));
+}

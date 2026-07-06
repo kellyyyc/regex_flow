@@ -4,12 +4,16 @@ export type CreateJobResponse = {
   id: number;
   fileName: string;
   status: JobStatusValue;
+  createdDate: string;
 };
 
 export type JobStatus = {
   id: number;
   fileName: string;
   status: JobStatusValue;
+  instruction: string;
+  createdDate: string;
+
   numProcessed: number;
   rowCount: number;
 };
@@ -18,8 +22,9 @@ export type JobResult = {
   id: number;
   fileName: string;
   status: JobStatusValue;
-
   instruction: string;
+  createdDate: string;
+
   regexPattern: string;
   replacement: string;
   targetColumns: string[];

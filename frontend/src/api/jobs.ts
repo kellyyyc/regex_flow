@@ -12,12 +12,16 @@ type CreateJobResponseApi = {
   id: number;
   file_name: string;
   status: JobStatusValue;
+  created_date: string;
 };
 
 type JobStatusApi = {
   id: number;
   file_name: string;
   status: JobStatusValue;
+  created_date: string;
+  instruction: string;
+
   num_processed: number;
   row_count: number;
 };
@@ -26,6 +30,7 @@ type JobResultApi = {
   id: number;
   file_name: string;
   status: JobStatusValue;
+  created_date: string;
   instruction: string;
 
   regex_pattern: string;
@@ -36,7 +41,7 @@ type JobResultApi = {
   changed_row_count: number;
 
   column_headers: string[];
-  preview_rows: Record<string, string | number | boolean | null>[];
+  preview_rows?: Record<string, string | number | boolean | null>[];
 
   error_message?: string;
 };
@@ -50,6 +55,7 @@ function mapCreateJobResponse(data: CreateJobResponseApi): CreateJobResponse {
     id: data.id,
     fileName: data.file_name,
     status: data.status,
+    createdDate: data.created_date,
   };
 }
 
@@ -58,6 +64,9 @@ function mapJobStatus(data: JobStatusApi): JobStatus {
     id: data.id,
     fileName: data.file_name,
     status: data.status,
+    instruction: data.instruction,
+    createdDate: data.created_date,
+
     numProcessed: data.num_processed,
     rowCount: data.row_count,
   };
@@ -69,13 +78,15 @@ function mapJobResult(data: JobResultApi): JobResult {
     fileName: data.file_name,
     status: data.status,
     instruction: data.instruction,
+    createdDate: data.created_date,
+
     regexPattern: data.regex_pattern,
     replacement: data.replacement,
     targetColumns: data.target_columns,
     rowCount: data.row_count,
     changedRowCount: data.changed_row_count,
     columnHeaders: data.column_headers,
-    previewRows: data.preview_rows,
+    previewRows: data.preview_rows ?? [],
     errorMessage: data.error_message,
   };
 }
