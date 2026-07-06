@@ -1,10 +1,13 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { createProcessingJob } from "../api/jobs";
+
 import type { SubmitEvent } from "react";
 
 export function HomePage() {
+  const navigate = useNavigate();
   const [file, setFile] = useState<File | null>(null);
-  const [prompt, setPrompt] = useState("");
+  const [instruction, setInstruction] = useState("");
 
   const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -13,13 +16,23 @@ export function HomePage() {
       return;
     }
 
+    if (!instruction.trim()) {
+      alert("Please enter an instruction.");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("prompt", prompt);
+    formData.append("instruction", instruction);
 
     try {
-      const job = await createProcessingJob(file, prompt);
-      console.log(job);
+      const job = await createProcessingJob(file, instruction);
+
+      if (job == null) {
+        return;
+      }
+
+      navigate(`/jobs/${job.id}`, { replace: true });
     } catch (error) {
       alert(`Failed to create job: ${error}`);
       console.error("Failed to create job", error);
@@ -65,16 +78,16 @@ export function HomePage() {
 
           <div>
             <label
-              htmlFor="prompt"
+              htmlFor="instruction"
               className="block text-sm font-medium text-slate-700"
             >
               Pattern description
             </label>
 
             <textarea
-              id="prompt"
-              value={prompt}
-              onChange={(event) => setPrompt(event.target.value)}
+              id="instruction"
+              value={instruction}
+              onChange={(event) => setInstruction(event.target.value)}
               placeholder={
                 "Example: \"Find email addresses in the Email column and replace them with 'REDACTED'.\""
               }
@@ -85,7 +98,7 @@ export function HomePage() {
 
           <button
             type="submit"
-            disabled={!file || !prompt.trim()}
+            disabled={!file || !instruction.trim()}
             className="rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-300"
           >
             Start processing
