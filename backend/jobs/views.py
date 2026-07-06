@@ -10,8 +10,11 @@ ALLOWED_EXTENSIONS = [".csv", ".xlsx"]
 
 
 def find_job(job_id: int):
-    job = Job.objects.get(id=job_id)
-    return job
+    try:
+        job = Job.objects.get(id=job_id)
+        return job
+    except Exception as _:
+        return None
 
 
 def serialize_create_job_response(job):
@@ -19,6 +22,7 @@ def serialize_create_job_response(job):
         "id": job.id,
         "file_name": job.file_name,
         "status": job.status,
+        "created_date": job.created_at.isoformat(),
     }
 
 
@@ -27,6 +31,7 @@ def serialize_job_status(job):
         "id": job.id,
         "file_name": job.file_name,
         "status": job.status,
+        "created_date": job.created_at.isoformat(),
         "instruction": job.instruction,
         "num_processed": job.num_processed,
         "row_count": job.row_count,
@@ -38,6 +43,7 @@ def serialize_job_result(job):
         "id": job.id,
         "file_name": job.file_name,
         "status": job.status,
+        "created_date": job.created_at.isoformat(),
         "instruction": job.instruction,
         "regex_pattern": job.regex_pattern,
         "replacement": job.replacement,
@@ -45,10 +51,10 @@ def serialize_job_result(job):
         "row_count": job.row_count,
         "changed_row_count": job.changed_row_count,
         "column_headers": job.column_headers,
-        "preview_rows": job.preview_rows,
+        "preview_rows": getattr(job, "preview_rows", []),
     }
 
-    if "error_message" in job:
+    if job.error_message:
         data["error_message"] = job.error_message
 
     return data

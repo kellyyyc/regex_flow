@@ -27,6 +27,7 @@ class Job(models.Model):
     row_count = models.PositiveBigIntegerField(default=0)
     changed_row_count = models.PositiveBigIntegerField(default=0)
     column_headers = models.JSONField(default=list, blank=True)
+    preview_rows = models.JSONField(default=list, blank=True)
 
     error_message = models.TextField(blank=True)
 
