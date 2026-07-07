@@ -31,4 +31,7 @@ def is_safe_regex(pattern: str) -> tuple[bool, str]:
         except regex.error as e:
             return False, f"Regex check failed: {e}"
 
+    if compiled.match("") is not None:
+        return False, "Regex pattern should not match an empty string."
+
     return True, ""
