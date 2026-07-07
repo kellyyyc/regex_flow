@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { getAllJobs } from "../api/jobs";
-import { getStatusClassName, getDescription } from "../shared/utils";
+import {
+  formatCreatedDate,
+  getStatusClassName,
+  getStatusDescription,
+} from "../shared/utils";
 
 import type { JobStatus } from "../types/jobs";
 
@@ -75,7 +79,14 @@ export function JobListPage() {
                     {job.fileName}
                   </h2>
                   <p className="mt-1 text-sm text-slate-600">
-                    {getDescription(job.status, job.numProcessed, job.rowCount)}
+                    {getStatusDescription(
+                      job.status,
+                      job.numProcessed,
+                      job.rowCount,
+                    )}
+                  </p>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Created {formatCreatedDate(job.createdDate)}
                   </p>
                 </div>
 

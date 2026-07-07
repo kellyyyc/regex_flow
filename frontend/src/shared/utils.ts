@@ -1,4 +1,4 @@
-import type { JobStatus, JobStatusValue } from "../types/jobs";
+import type { JobResult, JobStatus, JobStatusValue } from "../types/jobs";
 
 export function parseJobId(jobId: string | undefined) {
   const parsed = Number(jobId);
@@ -26,7 +26,7 @@ export function getStatusClassName(status: JobStatusValue | null) {
 export function getPageTitle(
   isLoading: boolean,
   error: string,
-  job: JobStatus | null,
+  job: JobStatus | JobResult | null,
 ) {
   if (isLoading) return "Loading job";
   if (error) return "Unable to load job";
@@ -50,7 +50,7 @@ export function getPageTitle(
   }
 }
 
-export function getDescription(
+export function getStatusDescription(
   status: JobStatusValue,
   numProcessed: number,
   rowCount: number,
