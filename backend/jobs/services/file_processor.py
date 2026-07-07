@@ -90,6 +90,11 @@ def apply_regex_replacement(
     target_columns: list[str],
 ) -> tuple[pd.DataFrame, int]:
     compiled_pattern = regex.compile(pattern)
+
+    for column in target_columns:
+        if not pd.api.types.is_string_dtype(df[column]):
+            df[column] = df[column].astype("string")
+
     changed_row_count = 0
 
     for row_index in df.index:
