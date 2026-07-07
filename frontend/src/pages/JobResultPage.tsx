@@ -66,6 +66,10 @@ export function JobResultPage() {
     return <Navigate to="/jobs" replace />;
   }
 
+  if (!isLoading && result != null && result.status !== "SUCCESS") {
+    return <Navigate to={`/jobs/${parsedJobId}`} replace />;
+  }
+
   return (
     <main className="min-h-screen bg-slate-100 p-8">
       <section className="mx-auto max-w-3xl rounded-2xl bg-white p-8 shadow">
