@@ -89,18 +89,18 @@ export function JobStatusPage() {
             ) : job == null ? (
               <p className="mt-2 text-slate-600">No status available.</p>
             ) : (
-              <>
-                <p className="mt-2 text-slate-600">
-                  {getStatusDescription(
-                    job.status,
-                    job.numProcessed,
-                    job.rowCount,
-                  )}
-                </p>
-                <p className="mt-2 text-sm text-gray-500">
-                  Created {formatCreatedDate(job.createdDate)}
-                </p>
-              </>
+              <p className="mt-2 text-slate-600">
+                {getStatusDescription(
+                  job.status,
+                  job.numProcessed,
+                  job.rowCount,
+                )}
+              </p>
+            )}
+            {job?.createdDate && (
+              <p className="mt-2 text-sm text-gray-500">
+                Created {formatCreatedDate(job.createdDate)}
+              </p>
             )}
           </div>
 
