@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Navigate, useParams } from "react-router";
+import { Link, Navigate, useParams } from "react-router";
 
 import { getJobResult } from "../api/jobs";
 import {
@@ -37,10 +37,6 @@ export function JobResultPage() {
         const data = await getJobResult(parsedJobId);
         if (!cancelled) {
           setResult(data);
-
-          if (data && data.status === "FAILED") {
-            setError(data.errorMessage ?? "Failed to load job error.");
-          }
         }
       } catch (err) {
         console.error("Failed to fetch job result", err);
@@ -161,16 +157,22 @@ export function JobResultPage() {
                 </div>
               </dl>
 
-              {result?.resultFileUrl ? (
-                <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-3">
+                <Link
+                  to={`/jobs/${result.id}`}
+                  className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
+                >
+                  View status
+                </Link>
+                {result?.resultFileUrl ? (
                   <a
                     href={result?.resultFileUrl}
                     className="inline-flex items-center rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
                   >
                     Download result
-                  </a>{" "}
-                </div>
-              ) : null}
+                  </a>
+                ) : null}
+              </div>
 
               <JobPreviewTable job={result} />
             </div>
