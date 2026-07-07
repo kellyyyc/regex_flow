@@ -30,6 +30,10 @@ export function JobResultPage() {
         const data = await getJobResult(parsedJobId);
         if (!cancelled) {
           setResult(data);
+
+          if (data && data.status === "FAILED") {
+            setError(data.errorMessage ?? "Failed to load job error.");
+          }
         }
       } catch (err) {
         console.error("Failed to fetch job result", err);

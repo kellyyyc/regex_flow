@@ -16,6 +16,8 @@ export type JobStatus = {
 
   numProcessed: number;
   rowCount: number;
+
+  errorMessage?: string;
 };
 
 export type JobResult = {

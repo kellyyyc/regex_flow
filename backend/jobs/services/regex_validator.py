@@ -14,9 +14,9 @@ EDGE_CASES = [
 ]
 
 
-def is_safe_regex(pattern: str) -> bool:
+def is_safe_regex(pattern: str) -> tuple[bool, str]:
     if not pattern or not pattern.strip():
-        raise ValueError("Regex pattern cannot be empty.")
+        return False, "Regex pattern cannot be empty."
 
     try:
         compiled = regex.compile(pattern)
@@ -30,3 +30,5 @@ def is_safe_regex(pattern: str) -> bool:
             return False, "Regex timed out on safety check."
         except regex.error as e:
             return False, f"Regex check failed: {e}"
+
+    return True, ""

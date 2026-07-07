@@ -29,7 +29,7 @@ def serialize_create_job_response(job: Job) -> dict[str, int | str]:
 
 
 def serialize_job_status(job: Job) -> dict[str, int | str]:
-    return {
+    data = {
         "id": job.id,
         "fileName": job.file_name,
         "status": job.status,
@@ -38,6 +38,11 @@ def serialize_job_status(job: Job) -> dict[str, int | str]:
         "numProcessed": job.num_processed,
         "rowCount": job.row_count,
     }
+
+    if job.error_message:
+        data["errorMessage"] = job.error_message
+
+    return data
 
 
 def serialize_job_result(job: Job) -> dict[str, Any]:

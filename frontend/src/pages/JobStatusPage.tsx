@@ -36,6 +36,10 @@ export function JobStatusPage() {
 
         if (!cancelled) {
           setJob(data);
+
+          if (data && data.status === "FAILED") {
+            setError(data.errorMessage ?? "Failed to load job error.");
+          }
         }
       } catch (err) {
         console.error("Failed to fetch job status", err);
