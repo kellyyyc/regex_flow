@@ -47,7 +47,7 @@ def serialize_job_status(job: Job) -> dict[str, int | str]:
     return data
 
 
-def serialize_job_result(job: Job) -> dict[str, Any]:
+def serialize_job_result(job: Job, request: Request) -> dict[str, Any]:
     data = {
         "id": job.id,
         "fileName": job.file_name,
@@ -61,6 +61,9 @@ def serialize_job_result(job: Job) -> dict[str, Any]:
         "changedRowCount": job.changed_row_count,
         "columnHeaders": job.column_headers,
         "previewRows": getattr(job, "preview_rows", []),
+        "resultFileUrl": (
+            request.build_absolute_uri(job.result_file.url) if job.result_file else None
+        ),
     }
 
     if job.error_message:
@@ -137,4 +140,4 @@ def get_job_result(request, job_id: int) -> Response:
             status=status.HTTP_404_NOT_FOUND,
         )
 
-    return Response(serialize_job_result(job))
+    return Response(serialize_job_result(job, request))

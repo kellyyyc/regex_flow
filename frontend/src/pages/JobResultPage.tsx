@@ -162,6 +162,15 @@ export function JobResultPage() {
               </dl>
 
               <JobPreviewTable job={result} />
+
+              {result.resultFileUrl ? (
+                <a
+                  href={result.resultFileUrl}
+                  className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
+                >
+                  Download result
+                </a>
+              ) : null}
             </div>
           ) : null}
         </div>

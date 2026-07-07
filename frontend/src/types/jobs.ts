@@ -37,6 +37,7 @@ export type JobResult = {
 
   columnHeaders: string[];
   previewRows: Record<string, string | number | boolean | null>[];
+  resultFileUrl?: string | null;
 
   errorMessage?: string;
 };

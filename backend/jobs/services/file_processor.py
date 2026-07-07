@@ -1,13 +1,17 @@
-import csv
+import os
+import tempfile
 from pathlib import Path
 
+import pandas as pd
+import regex
+from django.core.files import File
 from django.utils import timezone
-from openpyxl import load_workbook
 
 from ..models import Job
 
 SUPPORTED_EXTENSIONS = {".csv", ".xlsx"}
 PREVIEW_ROW_LIMIT = 25
+REGEX_TIMEOUT = 0.1
 
 
 def mark_job_running(job: Job) -> None:
@@ -53,92 +57,123 @@ def validate_input_file(job: Job) -> str:
     return input_path
 
 
-def collect_csv_metadata(file_path: str) -> tuple[int, list[str], list[dict[str, str]]]:
-    with open(file_path, newline="", encoding="utf-8-sig") as csv_file:
-        reader = csv.DictReader(csv_file)
-        headers = reader.fieldnames or []
-        preview_rows: list[dict[str, str]] = []
-        row_count = 0
-
-        for row in reader:
-            row_count += 1
-
-            if len(preview_rows) < PREVIEW_ROW_LIMIT:
-                preview_rows.append(
-                    {
-                        header: (value if value is not None else "")
-                        for header, value in row.items()
-                    }
-                )
-
-    return row_count, headers, preview_rows
-
-
-def collect_xlsx_metadata(
-    file_path: str,
-) -> tuple[int, list[str], list[dict[str, str | int | float | bool]]]:
-    workbook = load_workbook(file_path, read_only=True, data_only=True)
-
-    try:
-        worksheet = workbook.active
-        rows = worksheet.iter_rows(values_only=True)
-        header_row = next(rows, None)
-
-        if header_row is None:
-            return 0, [], []
-
-        headers = [
-            str(value).strip() if value is not None else ""
-            for value in header_row
-        ]
-        preview_rows: list[dict[str, str | int | float | bool]] = []
-        row_count = 0
-
-        for row in rows:
-            row_count += 1
-
-            if len(preview_rows) < PREVIEW_ROW_LIMIT:
-                preview_rows.append(
-                    {
-                        headers[index]: (value if value is not None else "")
-                        for index, value in enumerate(row)
-                        if index < len(headers)
-                    }
-                )
-
-        return row_count, headers, preview_rows
-    finally:
-        workbook.close()
-
-
-def collect_file_metadata(
-    file_path: str,
-) -> tuple[int, list[str], list[dict[str, str | int | float | bool]]]:
+def load_dataframe(file_path: str) -> pd.DataFrame:
     extension = Path(file_path).suffix.lower()
 
     if extension == ".csv":
-        return collect_csv_metadata(file_path)
+        return pd.read_csv(file_path)
 
     if extension == ".xlsx":
-        return collect_xlsx_metadata(file_path)
+        return pd.read_excel(file_path)
 
     raise ValueError("Unsupported file type. Only CSV and XLSX files are supported.")
 
 
-def save_job_file_summary(
+def get_target_columns(df: pd.DataFrame, target_columns: list[str]) -> list[str]:
+    if target_columns:
+        missing_columns = [
+            column for column in target_columns if column not in df.columns
+        ]
+
+        if missing_columns:
+            raise ValueError(f"Target columns not found: {', '.join(missing_columns)}")
+
+        return target_columns
+
+    return list(df.select_dtypes(include=["object", "string"]).columns)
+
+
+def apply_regex_replacement(
+    df: pd.DataFrame,
+    pattern: str,
+    replacement: str,
+    target_columns: list[str],
+) -> tuple[pd.DataFrame, int]:
+    compiled_pattern = regex.compile(pattern)
+    changed_row_count = 0
+
+    for row_index in df.index:
+        row_changed = False
+
+        for column in target_columns:
+            value = df.at[row_index, column]
+
+            if pd.isna(value):
+                continue
+
+            original_text = str(value)
+            try:
+                updated_text = compiled_pattern.sub(
+                    replacement,
+                    original_text,
+                    timeout=REGEX_TIMEOUT,
+                )
+            except TimeoutError as error:
+                raise ValueError(
+                    f"Regex timed out while processing column '{column}'. "
+                    "Try a simpler pattern."
+                ) from error
+
+            if updated_text != original_text:
+                df.at[row_index, column] = updated_text
+                row_changed = True
+
+        if row_changed:
+            changed_row_count += 1
+
+    return df, changed_row_count
+
+
+def save_processed_result(
+    job: Job,
+    df: pd.DataFrame,
+) -> tuple[list[str], list[dict[str, str | int | float | bool]], int]:
+    extension = Path(job.file_name).suffix.lower()
+    result_name = f"{Path(job.file_name).stem}_processed{extension}"
+
+    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=extension)
+    temp_path = temp_file.name
+    temp_file.close()
+
+    try:
+        if extension == ".csv":
+            df.to_csv(temp_path, index=False)
+        elif extension == ".xlsx":
+            df.to_excel(temp_path, index=False)
+        else:
+            raise ValueError(
+                "Unsupported file type. Only CSV and XLSX files are supported."
+            )
+
+        with open(temp_path, "rb") as result_file:
+            job.result_file.save(result_name, File(result_file), save=False)
+    finally:
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+
+    preview_rows = df.head(PREVIEW_ROW_LIMIT).fillna("").to_dict(orient="records")
+
+    return list(df.columns), preview_rows, len(df)
+
+
+def save_processed_job_result(
     job: Job,
     row_count: int,
+    changed_row_count: int,
     column_headers: list[str],
-    preview_rows: list[dict[str, str]],
+    preview_rows: list[dict[str, str | int | float | bool]],
 ) -> None:
     job.row_count = row_count
     job.num_processed = row_count
+    job.changed_row_count = changed_row_count
     job.column_headers = column_headers
     job.preview_rows = preview_rows
     job.save(
         update_fields=[
+            "result_file",
             "row_count",
             "num_processed",
+            "changed_row_count",
             "column_headers",
             "preview_rows",
         ]
