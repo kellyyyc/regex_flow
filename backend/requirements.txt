@@ -4,3 +4,4 @@ django-cors-headers
 celery
 pandas
 regex
+openpyxl

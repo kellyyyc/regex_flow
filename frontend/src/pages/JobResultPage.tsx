@@ -145,7 +145,9 @@ export function JobResultPage() {
                     Replacement Value
                   </dt>
                   <dd className="mt-1 rounded-lg bg-white px-3 py-2 font-mono text-sm text-slate-900">
-                    {result.replacement || "Not available."}
+                    {result.replacement != null
+                      ? `"${result.replacement}"`
+                      : "Not available."}
                   </dd>
                 </div>
                 <div className="sm:col-span-2">

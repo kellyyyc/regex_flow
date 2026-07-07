@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from .models import Job
+from .processing import process_job_sync
 
 ALLOWED_EXTENSIONS = [".csv", ".xlsx"]
 
@@ -97,6 +98,8 @@ def create_job(request: Request) -> Response:
         status="QUEUED",
         instruction=instruction,
     )
+
+    process_job_sync(job.id)
 
     return Response(serialize_create_job_response(job), status=status.HTTP_201_CREATED)
 
