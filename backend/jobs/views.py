@@ -1,8 +1,10 @@
 from rest_framework.decorators import api_view, parser_classes
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import status
 from pathlib import Path
+from typing import Any
 
 from .models import Job
 
@@ -13,61 +15,60 @@ def find_job(job_id: int):
     try:
         job = Job.objects.get(id=job_id)
         return job
-    except Exception as _:
+    except Job.DoesNotExist:
         return None
 
 
-def serialize_create_job_response(job):
+def serialize_create_job_response(job: Job) -> dict[str, int | str]:
     return {
         "id": job.id,
-        "file_name": job.file_name,
+        "fileName": job.file_name,
         "status": job.status,
-        "created_date": job.created_at.isoformat(),
+        "createdDate": job.created_at.isoformat(),
     }
 
 
-def serialize_job_status(job):
+def serialize_job_status(job: Job) -> dict[str, int | str]:
     return {
         "id": job.id,
-        "file_name": job.file_name,
+        "fileName": job.file_name,
         "status": job.status,
-        "created_date": job.created_at.isoformat(),
+        "createdDate": job.created_at.isoformat(),
         "instruction": job.instruction,
-        "num_processed": job.num_processed,
-        "row_count": job.row_count,
+        "numProcessed": job.num_processed,
+        "rowCount": job.row_count,
     }
 
 
-def serialize_job_result(job):
+def serialize_job_result(job: Job) -> dict[str, Any]:
     data = {
         "id": job.id,
-        "file_name": job.file_name,
+        "fileName": job.file_name,
         "status": job.status,
-        "created_date": job.created_at.isoformat(),
+        "createdDate": job.created_at.isoformat(),
         "instruction": job.instruction,
-        "regex_pattern": job.regex_pattern,
+        "regexPattern": job.regex_pattern,
         "replacement": job.replacement,
-        "target_columns": job.target_columns,
-        "row_count": job.row_count,
-        "changed_row_count": job.changed_row_count,
-        "column_headers": job.column_headers,
-        "preview_rows": getattr(job, "preview_rows", []),
+        "targetColumns": job.target_columns,
+        "rowCount": job.row_count,
+        "changedRowCount": job.changed_row_count,
+        "columnHeaders": job.column_headers,
+        "previewRows": getattr(job, "preview_rows", []),
     }
 
     if job.error_message:
-        data["error_message"] = job.error_message
+        data["errorMessage"] = job.error_message
 
     return data
 
 
-def get_all_jobs(request):
+def get_all_jobs(request: Request) -> Response:
     jobs = Job.objects.order_by("-created_at")[:50]
     serialized_jobs = [serialize_job_status(job) for job in jobs]
     return Response(serialized_jobs)
 
 
-@parser_classes([MultiPartParser, FormParser])
-def create_job(request):
+def create_job(request: Request) -> Response:
     instruction = request.data.get("instruction")
     file = request.FILES.get("file")
 
@@ -95,7 +96,8 @@ def create_job(request):
 
 
 @api_view(["GET", "POST"])
-def jobs(request):
+@parser_classes([MultiPartParser, FormParser])
+def jobs(request: Request) -> Response:
     if request.method == "GET":
         return get_all_jobs(request)
 
@@ -104,7 +106,7 @@ def jobs(request):
 
 
 @api_view(["GET"])
-def get_job_status(request, job_id):
+def get_job_status(request, job_id: int) -> Response:
     job = find_job(job_id)
 
     if job is None:
@@ -117,7 +119,7 @@ def get_job_status(request, job_id):
 
 
 @api_view(["GET"])
-def get_job_result(request, job_id):
+def get_job_result(request, job_id: int) -> Response:
     job = find_job(job_id)
 
     if job is None:
