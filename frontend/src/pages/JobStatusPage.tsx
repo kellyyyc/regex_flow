@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Navigate, useParams } from "react-router";
+import { Link, Navigate, useParams } from "react-router";
 import { isNotFoundError, getJobStatus } from "../api/jobs";
 import {
   getStatusClassName,
@@ -10,6 +10,8 @@ import {
 } from "../shared/utils";
 
 import type { JobStatus } from "../types/jobs";
+
+const formatCount = (count: number) => count.toLocaleString("en-US");
 
 export function JobStatusPage() {
   const { jobId } = useParams();
@@ -36,10 +38,6 @@ export function JobStatusPage() {
 
         if (!cancelled) {
           setJob(data);
-
-          if (data && data.status === "FAILED") {
-            setError(data.errorMessage ?? "Failed to load job error.");
-          }
         }
       } catch (err) {
         console.error("Failed to fetch job status", err);
@@ -97,11 +95,6 @@ export function JobStatusPage() {
                 )}
               </p>
             )}
-            {job?.createdDate && (
-              <p className="mt-2 text-sm text-gray-500">
-                Created {formatCreatedDate(job.createdDate)}
-              </p>
-            )}
           </div>
 
           {job != null && (
@@ -114,6 +107,60 @@ export function JobStatusPage() {
             </span>
           )}
         </div>
+
+        {!isLoading && job != null && (
+          <div className="mt-2 space-y-4">
+            <dl className="grid gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <dt className="text-sm font-medium text-slate-500">
+                  Created Date
+                </dt>
+                <dd className="mt-1 text-sm text-slate-900">
+                  {formatCreatedDate(job.createdDate)}
+                </dd>
+              </div>
+              <div className="sm:col-span-2">
+                <dt className="text-sm font-medium text-slate-500">File</dt>
+                <dd className="mt-1 text-sm text-slate-900">{job.fileName}</dd>
+              </div>
+
+              {job.status === "FAILED" && (
+                <div className="sm:col-span-2">
+                  <dt className="text-sm font-medium text-slate-500">
+                    Error Message
+                  </dt>
+                  <dd className="mt-1 text-sm text-red-600">
+                    {job.errorMessage || "Processing failed."}
+                  </dd>
+                </div>
+              )}
+
+              {(job.status === "RUNNING" || job.status === "SUCCESS") && (
+                <div className="sm:col-span-2">
+                  <dt className="text-sm font-medium text-slate-500">
+                    Processing Summary
+                  </dt>
+                  <dd className="mt-1 text-sm text-slate-900">
+                    {formatCount(job.numProcessed)} /{" "}
+                    {formatCount(job.rowCount)} rows processed,{" "}
+                    {formatCount(job.changedRowCount)} changed
+                  </dd>
+                </div>
+              )}
+            </dl>
+
+            {job.status === "SUCCESS" ? (
+              <div className="flex flex-wrap gap-3">
+                <Link
+                  to={`/jobs/${job.id}/result`}
+                  className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
+                >
+                  View result
+                </Link>
+              </div>
+            ) : null}
+          </div>
+        )}
       </section>
     </main>
   );

@@ -82,12 +82,16 @@ export function JobResultPage() {
               {getPageTitle(isLoading, error, result)}
             </h1>
             {isLoading ? (
-              <p className="mt-2 text-slate-600">Loading job status...</p>
+              <p className="mt-2 text-slate-600">Loading results...</p>
             ) : error ? (
               <p className="mt-2 text-red-600">{error}</p>
             ) : result == null ? (
               <p className="mt-2 text-slate-600">Job not found.</p>
-            ) : null}
+            ) : (
+              <p className="mt-2 text-slate-600">
+                Processing finished successfully.
+              </p>
+            )}
           </div>
           {result != null && (
             <span
@@ -100,10 +104,8 @@ export function JobResultPage() {
           )}
         </div>
 
-        <div className="mt-6">
-          {isLoading ? (
-            <p className="text-slate-600">Loading result...</p>
-          ) : result != null ? (
+        <div className="mt-2">
+          {!isLoading && !error && result != null ? (
             <div className="space-y-6">
               <dl className="grid gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
@@ -156,6 +158,7 @@ export function JobResultPage() {
                   </dd>
                 </div>
               </dl>
+
               <JobPreviewTable job={result} />
             </div>
           ) : null}

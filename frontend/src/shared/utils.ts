@@ -60,10 +60,14 @@ export function getStatusDescription(
 
   switch (status) {
     case "SUCCESS":
-      return `Processed all ${rowCountText} rows`;
+      return "Processing Completed";
 
     case "RUNNING":
-      return `Processed ${processedText} of ${rowCountText} rows`;
+      if (rowCount > 0) {
+        return `${processedText} / ${rowCountText} rows processed`;
+      }
+
+      return "Processing file...";
 
     case "QUEUED":
       return "Queued for processing";
