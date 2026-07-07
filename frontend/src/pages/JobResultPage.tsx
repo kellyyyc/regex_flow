@@ -2,10 +2,17 @@ import { useEffect, useState } from "react";
 import { Navigate, useParams } from "react-router";
 
 import { getJobResult } from "../api/jobs";
-import { parseJobId, getPageTitle } from "../shared/utils";
+import {
+  parseJobId,
+  getPageTitle,
+  getStatusClassName,
+  formatCreatedDate,
+} from "../shared/utils";
 import { JobPreviewTable } from "../components/JobPreviewTable";
 
 import type { JobResult } from "../types/jobs";
+
+const formatCount = (count: number) => count.toLocaleString("en-US");
 
 export function JobResultPage() {
   const { jobId } = useParams();
@@ -79,7 +86,11 @@ export function JobResultPage() {
             ) : null}
           </div>
           {result != null && (
-            <span className="w-fit rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700">
+            <span
+              className={`rounded-full px-3 py-1 text-sm font-semibold ${getStatusClassName(
+                result.status,
+              )}`}
+            >
               {result.status}
             </span>
           )}
@@ -88,8 +99,61 @@ export function JobResultPage() {
         <div className="mt-6">
           {isLoading ? (
             <p className="text-slate-600">Loading result...</p>
-          ) : !error ? (
-            <JobPreviewTable job={result} />
+          ) : result != null ? (
+            <div className="space-y-6">
+              <dl className="grid gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-2">
+                <div className="sm:col-span-2">
+                  <dt className="text-sm font-medium text-slate-500">
+                    Created Date
+                  </dt>
+                  <dd className="mt-1 text-sm text-slate-900">
+                    {formatCreatedDate(result.createdDate)}
+                  </dd>
+                </div>
+                <div className="sm:col-span-2">
+                  <dt className="text-sm font-medium text-slate-500">
+                    File Name
+                  </dt>
+                  <dd className="mt-1 text-sm text-slate-900">
+                    {result.fileName}
+                  </dd>
+                </div>
+                <div className="sm:col-span-2">
+                  <dt className="text-sm font-medium text-slate-500">
+                    User Input - Natural Language
+                  </dt>
+                  <dd className="mt-1 text-sm text-slate-900">
+                    {result.instruction}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-slate-500">
+                    LLM Output - Regex Pattern
+                  </dt>
+                  <dd className="mt-1 break-all rounded-lg bg-white px-3 py-2 font-mono text-sm text-slate-900">
+                    {result.regexPattern || "Not available."}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-slate-500">
+                    Replacement Value
+                  </dt>
+                  <dd className="mt-1 rounded-lg bg-white px-3 py-2 font-mono text-sm text-slate-900">
+                    {result.replacement || "Not available."}
+                  </dd>
+                </div>
+                <div className="sm:col-span-2">
+                  <dt className="text-sm font-medium text-slate-500">
+                    Rows Changed
+                  </dt>
+                  <dd className="mt-1 text-sm text-slate-900">
+                    {formatCount(result.changedRowCount)} of{" "}
+                    {formatCount(result.rowCount)} rows changed
+                  </dd>
+                </div>
+              </dl>
+              <JobPreviewTable job={result} />
+            </div>
           ) : null}
         </div>
       </section>
