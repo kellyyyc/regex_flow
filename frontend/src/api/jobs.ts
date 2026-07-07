@@ -1,94 +1,10 @@
 import axios from "axios";
 import { api } from "./client";
 
-import type {
-  JobStatusValue,
-  CreateJobResponse,
-  JobStatus,
-  JobResult,
-} from "../types/jobs";
-
-type CreateJobResponseApi = {
-  id: number;
-  file_name: string;
-  status: JobStatusValue;
-  created_date: string;
-};
-
-type JobStatusApi = {
-  id: number;
-  file_name: string;
-  status: JobStatusValue;
-  created_date: string;
-  instruction: string;
-
-  num_processed: number;
-  row_count: number;
-};
-
-type JobResultApi = {
-  id: number;
-  file_name: string;
-  status: JobStatusValue;
-  created_date: string;
-  instruction: string;
-
-  regex_pattern: string;
-  replacement: string;
-  target_columns: string[];
-
-  row_count: number;
-  changed_row_count: number;
-
-  column_headers: string[];
-  preview_rows?: Record<string, string | number | boolean | null>[];
-
-  error_message?: string;
-};
+import type { CreateJobResponse, JobStatus, JobResult } from "../types/jobs";
 
 export function isNotFoundError(err: unknown) {
   return axios.isAxiosError(err) && err.response?.status === 404;
-}
-
-function mapCreateJobResponse(data: CreateJobResponseApi): CreateJobResponse {
-  return {
-    id: data.id,
-    fileName: data.file_name,
-    status: data.status,
-    createdDate: data.created_date,
-  };
-}
-
-function mapJobStatus(data: JobStatusApi): JobStatus {
-  return {
-    id: data.id,
-    fileName: data.file_name,
-    status: data.status,
-    instruction: data.instruction,
-    createdDate: data.created_date,
-
-    numProcessed: data.num_processed,
-    rowCount: data.row_count,
-  };
-}
-
-function mapJobResult(data: JobResultApi): JobResult {
-  return {
-    id: data.id,
-    fileName: data.file_name,
-    status: data.status,
-    instruction: data.instruction,
-    createdDate: data.created_date,
-
-    regexPattern: data.regex_pattern,
-    replacement: data.replacement,
-    targetColumns: data.target_columns,
-    rowCount: data.row_count,
-    changedRowCount: data.changed_row_count,
-    columnHeaders: data.column_headers,
-    previewRows: data.preview_rows ?? [],
-    errorMessage: data.error_message,
-  };
 }
 
 export const createProcessingJob = async (
@@ -100,9 +16,9 @@ export const createProcessingJob = async (
     formData.append("file", file);
     formData.append("instruction", instruction);
 
-    const response = await api.post<CreateJobResponseApi>("/jobs/", formData);
+    const response = await api.post<CreateJobResponse>("/jobs/", formData);
 
-    return mapCreateJobResponse(response.data);
+    return response.data;
   } catch (err) {
     if (isNotFoundError(err)) {
       return null;
@@ -114,9 +30,9 @@ export const createProcessingJob = async (
 
 export const getAllJobs = async (): Promise<JobStatus[] | null> => {
   try {
-    const response = await api.get<JobStatusApi[]>("/jobs/");
+    const response = await api.get<JobStatus[]>("/jobs/");
 
-    return response.data.map(mapJobStatus);
+    return response.data;
   } catch (err) {
     if (isNotFoundError(err)) {
       return null;
@@ -128,9 +44,9 @@ export const getAllJobs = async (): Promise<JobStatus[] | null> => {
 
 export const getJobStatus = async (id: number): Promise<JobStatus | null> => {
   try {
-    const response = await api.get<JobStatusApi>(`/jobs/${id}/`);
+    const response = await api.get<JobStatus>(`/jobs/${id}/`);
 
-    return mapJobStatus(response.data);
+    return response.data;
   } catch (err) {
     if (isNotFoundError(err)) {
       return null;
@@ -142,9 +58,9 @@ export const getJobStatus = async (id: number): Promise<JobStatus | null> => {
 
 export const getJobResult = async (id: number): Promise<JobResult | null> => {
   try {
-    const response = await api.get<JobResultApi>(`/jobs/${id}/result/`);
+    const response = await api.get<JobResult>(`/jobs/${id}/result/`);
 
-    return mapJobResult(response.data);
+    return response.data;
   } catch (err) {
     if (isNotFoundError(err)) {
       return null;
