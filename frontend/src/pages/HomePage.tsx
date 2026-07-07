@@ -32,7 +32,7 @@ export function HomePage() {
         return;
       }
 
-      navigate(`/jobs/${job.id}`, { replace: true });
+      navigate(`/jobs/${job.id}`);
     } catch (error) {
       alert(`Failed to create job: ${error}`);
       console.error("Failed to create job", error);
