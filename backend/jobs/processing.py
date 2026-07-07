@@ -33,6 +33,7 @@ def process_job_sync(job_id: int) -> None:
             pattern=job.regex_pattern,
             replacement=job.replacement,
             target_columns=target_columns,
+            job=job,
         )
         column_headers, preview_rows, row_count = save_processed_result(
             job,

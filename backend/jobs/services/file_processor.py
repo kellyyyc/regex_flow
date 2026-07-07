@@ -12,6 +12,7 @@ from ..models import Job
 SUPPORTED_EXTENSIONS = {".csv", ".xlsx"}
 PREVIEW_ROW_LIMIT = 25
 REGEX_TIMEOUT = 0.1
+PROGRESS_UPDATE_INTERVAL = 1000
 
 
 def mark_job_running(job: Job) -> None:
@@ -88,6 +89,7 @@ def apply_regex_replacement(
     pattern: str,
     replacement: str,
     target_columns: list[str],
+    job: Job,
 ) -> tuple[pd.DataFrame, int]:
     compiled_pattern = regex.compile(pattern)
 
@@ -96,8 +98,9 @@ def apply_regex_replacement(
             df[column] = df[column].astype("string")
 
     changed_row_count = 0
+    total_rows = len(df)
 
-    for row_index in df.index:
+    for index, row_index in enumerate(df.index, start=1):
         row_changed = False
 
         for column in target_columns:
@@ -125,6 +128,11 @@ def apply_regex_replacement(
 
         if row_changed:
             changed_row_count += 1
+
+        if index % PROGRESS_UPDATE_INTERVAL == 0 or index == total_rows:
+            job.num_processed = index
+            job.changed_row_count = changed_row_count
+            job.save(update_fields=["num_processed", "changed_row_count"])
 
     return df, changed_row_count
 
