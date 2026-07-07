@@ -157,22 +157,16 @@ export function JobResultPage() {
                 </div>
               </dl>
 
-              <div className="flex flex-wrap gap-3">
-                <Link
-                  to={`/jobs/${result.id}`}
-                  className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
-                >
-                  View status
-                </Link>
-                {result?.resultFileUrl ? (
+              {result?.resultFileUrl ? (
+                <div className="flex flex-wrap gap-3">
                   <a
                     href={result?.resultFileUrl}
-                    className="inline-flex items-center rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
+                    className="inline-flex items-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
                   >
                     Download result
                   </a>
-                ) : null}
-              </div>
+                </div>
+              ) : null}
 
               <JobPreviewTable job={result} />
             </div>
