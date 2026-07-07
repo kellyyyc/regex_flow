@@ -106,7 +106,7 @@ export function JobResultPage() {
 
         <div className="mt-2">
           {!isLoading && !error && result != null ? (
-            <div className="space-y-6">
+            <div className="space-y-4 ">
               <dl className="grid gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
                   <dt className="text-sm font-medium text-slate-500">
@@ -161,16 +161,18 @@ export function JobResultPage() {
                 </div>
               </dl>
 
-              <JobPreviewTable job={result} />
-
-              {result.resultFileUrl ? (
-                <a
-                  href={result.resultFileUrl}
-                  className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
-                >
-                  Download result
-                </a>
+              {result?.resultFileUrl ? (
+                <div className="flex flex-wrap gap-3">
+                  <a
+                    href={result?.resultFileUrl}
+                    className="inline-flex items-center rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
+                  >
+                    Download result
+                  </a>{" "}
+                </div>
               ) : null}
+
+              <JobPreviewTable job={result} />
             </div>
           ) : null}
         </div>
