@@ -16,6 +16,7 @@ export type JobStatus = {
 
   numProcessed: number;
   rowCount: number;
+  changedRowCount: number;
 
   errorMessage?: string;
 };

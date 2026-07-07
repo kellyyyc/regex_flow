@@ -37,6 +37,7 @@ def serialize_job_status(job: Job) -> dict[str, int | str]:
         "instruction": job.instruction,
         "numProcessed": job.num_processed,
         "rowCount": job.row_count,
+        "changedRowCount": job.changed_row_count,
     }
 
     if job.error_message:
