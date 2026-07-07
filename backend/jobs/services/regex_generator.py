@@ -1,4 +1,4 @@
-def convert_instruction(instruction):
+def convert_instruction(instruction) -> dict:
     instruction_parts = instruction.split("|")
 
     regex_pattern = instruction_parts[0].strip()
