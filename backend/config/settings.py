@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +26,7 @@ SECRET_KEY = "django-insecure-ye*y2=(9hb5&i7u#!btel#k-ay4c*a+o$c$=r$fx+^)&a3sa63
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost", "backend"]
 
 
 # Application definition
@@ -127,6 +128,17 @@ STATIC_URL = "static/"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
+# Celery settings
+CELERY_BROKER_URL = os.getenv(
+    "CELERY_BROKER_URL",
+    "redis://localhost:6379/0",
+)
 
-CELERY_BROKER_URL = "redis://localhost:6379/0"
-CELERY_RESULT_BACKEND = "redis://localhost:6379/1"
+CELERY_RESULT_BACKEND = os.getenv(
+    "CELERY_RESULT_BACKEND",
+    "redis://localhost:6379/1",
+)
+
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
