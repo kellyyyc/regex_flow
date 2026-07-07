@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from .models import Job
-from .processing import process_job_sync
+from .tasks import process_job
 
 ALLOWED_EXTENSIONS = [".csv", ".xlsx"]
 
@@ -102,7 +102,7 @@ def create_job(request: Request) -> Response:
         instruction=instruction,
     )
 
-    process_job_sync(job.id)
+    process_job.delay(job.id)
 
     return Response(serialize_create_job_response(job), status=status.HTTP_201_CREATED)
 
