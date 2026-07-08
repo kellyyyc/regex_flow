@@ -1,10 +1,6 @@
 {$DOMAIN:demo.kellywebsite.com} {
     encode gzip
 
-    request_body {
-        max_size 200MB
-    }
-
     handle /api/* {
         reverse_proxy backend:8000
     }
