@@ -42,7 +42,6 @@ def serialize_job_status(job: Job) -> dict[str, Any]:
         "targetColumns": job.target_columns,
         "numProcessed": job.num_processed,
         "rowCount": job.row_count,
-        "changedRowCount": job.changed_row_count,
     }
 
     if job.error_message:
@@ -62,7 +61,6 @@ def serialize_job_result(job: Job, request: Request) -> dict[str, Any]:
         "replacement": job.replacement,
         "targetColumns": job.target_columns,
         "rowCount": job.row_count,
-        "changedRowCount": job.changed_row_count,
         "columnHeaders": job.column_headers,
         "previewRows": getattr(job, "preview_rows", []),
         "resultFileUrl": (

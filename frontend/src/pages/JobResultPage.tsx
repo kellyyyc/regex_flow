@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Navigate, useParams } from "react-router";
 
 import { getJobResult, isConflictError } from "../api/jobs";
-import { parseJobId, getPageTitle, formatCount } from "../shared/utils";
+import { parseJobId, getPageTitle } from "../shared/utils";
 import { JobPreviewTable } from "../components/JobPreviewTable";
 
 import type { JobResult } from "../types/jobs";
@@ -99,17 +99,7 @@ export function JobResultPage() {
         <div className="mt-2">
           {!isLoading && !error && result != null ? (
             <div className="space-y-4 ">
-              <JobInfoSection job={result}>
-                <div className="sm:col-span-2">
-                  <dt className="text-sm font-medium text-slate-500">
-                    Rows Changed
-                  </dt>
-                  <dd className="mt-1 text-sm text-slate-900">
-                    {formatCount(result.changedRowCount)} of{" "}
-                    {formatCount(result.rowCount)} rows changed
-                  </dd>
-                </div>
-              </JobInfoSection>
+              <JobInfoSection job={result} />
 
               {result.resultFileUrl ? (
                 <div className="flex flex-wrap gap-3">

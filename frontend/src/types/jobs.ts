@@ -25,7 +25,6 @@ export type JobStatus = {
 
   numProcessed: number;
   rowCount: number;
-  changedRowCount: number;
 
   errorMessage?: string;
 };
@@ -42,7 +41,6 @@ export type JobResult = {
   targetColumns: string[];
 
   rowCount: number;
-  changedRowCount: number;
 
   columnHeaders: string[];
   previewRows: Record<string, string | number | boolean | null>[];

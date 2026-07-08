@@ -156,8 +156,7 @@ export function JobStatusPage() {
                   </dt>
                   <dd className="mt-1 text-sm text-slate-900">
                     {formatCount(job.numProcessed)} /{" "}
-                    {formatCount(job.rowCount)} rows processed,{" "}
-                    {formatCount(job.changedRowCount)} changed
+                    {formatCount(job.rowCount)} rows processed
                   </dd>
                 </div>
               )}

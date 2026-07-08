@@ -54,7 +54,7 @@ def process_job_sync(job_id: int) -> None:
         job.save(update_fields=["row_count"])
 
         target_columns = get_target_columns(df, job.target_columns)
-        processed_df, changed_row_count = apply_regex_replacement(
+        processed_df = apply_regex_replacement(
             df=df,
             pattern=job.regex_pattern,
             replacement=job.replacement,
@@ -70,7 +70,6 @@ def process_job_sync(job_id: int) -> None:
         save_processed_job_result(
             job,
             row_count=row_count,
-            changed_row_count=changed_row_count,
             column_headers=column_headers,
             preview_rows=preview_rows,
         )

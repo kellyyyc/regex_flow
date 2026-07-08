@@ -28,14 +28,12 @@ def mark_job_running(job: Job) -> None:
     job.status = Job.Status.RUNNING
     job.error_message = ""
     job.num_processed = 0
-    job.changed_row_count = 0
     job.started_at = timezone.now()
     job.save(
         update_fields=[
             "status",
             "error_message",
             "num_processed",
-            "changed_row_count",
             "started_at",
         ]
     )
@@ -135,7 +133,7 @@ def apply_regex_replacement(
     replacement: str,
     target_columns: list[str],
     job: Job,
-) -> tuple[pd.DataFrame, int]:
+) -> pd.DataFrame:
     compiled_pattern = regex.compile(pattern)
     ensure_job_not_cancelled(job)
 
@@ -143,12 +141,9 @@ def apply_regex_replacement(
         if not pd.api.types.is_string_dtype(df[column]):
             df[column] = df[column].astype("string")
 
-    changed_row_count = 0
     total_rows = len(df)
 
     for index, row_index in enumerate(df.index, start=1):
-        row_changed = False
-
         for column in target_columns:
             value = df.at[row_index, column]
 
@@ -170,18 +165,13 @@ def apply_regex_replacement(
 
             if updated_text != original_text:
                 df.at[row_index, column] = updated_text
-                row_changed = True
-
-        if row_changed:
-            changed_row_count += 1
 
         if index % PROGRESS_UPDATE_INTERVAL == 0 or index == total_rows:
             ensure_job_not_cancelled(job)
             job.num_processed = index
-            job.changed_row_count = changed_row_count
-            job.save(update_fields=["num_processed", "changed_row_count"])
+            job.save(update_fields=["num_processed"])
 
-    return df, changed_row_count
+    return df
 
 
 def save_processed_result(
@@ -211,13 +201,11 @@ def save_processed_result(
 def save_processed_job_result(
     job: Job,
     row_count: int,
-    changed_row_count: int,
     column_headers: list[str],
     preview_rows: list[dict[str, str | int | float | bool]],
 ) -> None:
     job.row_count = row_count
     job.num_processed = row_count
-    job.changed_row_count = changed_row_count
     job.column_headers = column_headers
     job.preview_rows = preview_rows
     job.save(
@@ -225,7 +213,6 @@ def save_processed_job_result(
             "result_file",
             "row_count",
             "num_processed",
-            "changed_row_count",
             "column_headers",
             "preview_rows",
         ]
