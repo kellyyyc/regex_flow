@@ -1,3 +1,10 @@
+from openai import (
+    APIConnectionError,
+    APITimeoutError,
+    InternalServerError,
+    RateLimitError,
+)
+
 from .models import Job
 from .services.file_processor import (
     apply_regex_replacement,
@@ -11,6 +18,13 @@ from .services.file_processor import (
     validate_input_file,
 )
 from .services.regex_generator import convert_instruction
+
+RETRY_ERRORS = (
+    APIConnectionError,
+    APITimeoutError,
+    RateLimitError,
+    InternalServerError,
+)
 
 
 def process_job_sync(job_id: int) -> None:
@@ -52,5 +66,7 @@ def process_job_sync(job_id: int) -> None:
 
         mark_job_success(job)
 
+    except RETRY_ERRORS:
+        raise
     except Exception as e:
         mark_job_failed(job, str(e))
