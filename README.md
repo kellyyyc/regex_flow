@@ -23,6 +23,18 @@ Celery runs the background processing work. Redis is used as the Celery broker/r
 7. The file processor applies the replacement and writes the processed output as a CSV result file.
 8. The frontend polls the job status endpoint for progress and then displays the paginated preview/result when processing completes.
 
+## API Endpoints
+
+The backend API is mounted under `/api/jobs/`.
+
+| Method | Route | Purpose |
+| --- | --- | --- |
+| `GET` | `/api/jobs/` | List existing jobs. |
+| `POST` | `/api/jobs/` | Upload a file and instruction, create a queued job, and return the job ID. |
+| `GET` | `/api/jobs/{id}/` | Fetch job status, progress, metadata, and errors. |
+| `GET` | `/api/jobs/{id}/result/` | Fetch the processed result metadata and paginated preview once the job succeeds. |
+| `POST` | `/api/jobs/{id}/cancel/` | Request cancellation for a queued or running job. |
+
 ## Run Locally
 
 Create a root `.env` file before starting the app. The frontend, backend, Celery worker, Redis, and Spark settings are all read from this single file.
@@ -45,7 +57,7 @@ REDIS_CACHE_URL=redis://redis:6379/2
 
 SPARK_MASTER_URL=local[*]
 
-VITE_API_URL=http://localhost:8000/api
+VITE_API_URL=/api
 VITE_ALLOWED_HOSTS=localhost,127.0.0.1
 
 OPENAI_API_KEY=replace-with-openai-key
@@ -68,7 +80,7 @@ docker compose exec backend python manage.py migrate
 Open the frontend:
 
 ```text
-http://localhost:5173
+http://localhost
 ```
 
 Useful logs:
@@ -78,3 +90,14 @@ docker compose logs -f backend
 docker compose logs -f worker
 docker compose logs -f frontend
 ```
+
+## Production Deployment
+
+Use the production compose file when running behind Caddy:
+
+```bash
+docker compose -f docker-compose.prod.yml up -d --build
+docker compose -f docker-compose.prod.yml exec backend python manage.py migrate
+```
+
+Caddy serves HTTPS on ports `80` and `443`. It proxies `/api/*`, `/admin*`, and `/media/*` to the Django backend container, and proxies all other requests to the React frontend container.
