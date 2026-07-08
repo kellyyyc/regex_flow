@@ -7,6 +7,10 @@ export function isNotFoundError(err: unknown) {
   return axios.isAxiosError(err) && err.response?.status === 404;
 }
 
+export function isConflictError(err: unknown) {
+  return axios.isAxiosError(err) && err.response?.status === 409;
+}
+
 export const createProcessingJob = async (
   file: File,
   instruction: string,

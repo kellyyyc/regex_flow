@@ -144,6 +144,12 @@ def get_job_result(request, job_id: int) -> Response:
             status=status.HTTP_404_NOT_FOUND,
         )
 
+    if job.status != Job.Status.SUCCESS:
+        return Response(
+            {"detail": "Job result is only available after successful processing."},
+            status=status.HTTP_409_CONFLICT,
+        )
+
     return Response(serialize_job_result(job, request))
 
 

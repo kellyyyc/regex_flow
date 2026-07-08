@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, useParams } from "react-router";
-import { isNotFoundError, getJobStatus, cancelJob } from "../api/jobs";
+import { getJobStatus, cancelJob } from "../api/jobs";
 import {
   getPageTitle,
   getStatusDescription,
@@ -58,10 +58,7 @@ export function JobStatusPage() {
 
         if (!cancelled) {
           setJob(null);
-
-          if (!isNotFoundError(err)) {
-            setError("Failed to load job status.");
-          }
+          setError("Failed to load job status.");
         }
       } finally {
         if (!cancelled) {

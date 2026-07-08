@@ -1,12 +1,8 @@
 import { useEffect, useState } from "react";
 import { Navigate, useParams } from "react-router";
 
-import { getJobResult } from "../api/jobs";
-import {
-  parseJobId,
-  getPageTitle,
-  formatCount,
-} from "../shared/utils";
+import { getJobResult, isConflictError } from "../api/jobs";
+import { parseJobId, getPageTitle, formatCount } from "../shared/utils";
 import { JobPreviewTable } from "../components/JobPreviewTable";
 
 import type { JobResult } from "../types/jobs";
@@ -21,6 +17,7 @@ export function JobResultPage() {
   const [result, setResult] = useState<JobResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [shouldRedirectToStatus, setShouldRedirectToStatus] = useState(false);
 
   useEffect(() => {
     if (isInvalidJobId) return;
@@ -32,6 +29,7 @@ export function JobResultPage() {
         setIsLoading(true);
         setError("");
         setResult(null);
+        setShouldRedirectToStatus(false);
 
         const data = await getJobResult(parsedJobId);
         if (!cancelled) {
@@ -41,7 +39,11 @@ export function JobResultPage() {
         console.error("Failed to fetch job result", err);
 
         if (!cancelled) {
-          setError("Failed to load job result.");
+          if (isConflictError(err)) {
+            setShouldRedirectToStatus(true);
+          } else {
+            setError("Failed to load job result.");
+          }
         }
       } finally {
         if (!cancelled) {
@@ -61,7 +63,10 @@ export function JobResultPage() {
     return <Navigate to="/jobs" replace />;
   }
 
-  if (!isLoading && result != null && result.status !== "SUCCESS") {
+  if (
+    shouldRedirectToStatus ||
+    (!isLoading && result != null && result.status !== "SUCCESS")
+  ) {
     return <Navigate to={`/jobs/${parsedJobId}`} replace />;
   }
 
