@@ -18,6 +18,9 @@ export function getStatusClassName(status: JobStatusValue | null) {
     case "FAILED":
       return "bg-red-100 text-red-700";
 
+    case "CANCELLED":
+      return "bg-slate-200 text-slate-700";
+
     default:
       return "bg-orange-100 text-yellow-700";
   }
@@ -44,6 +47,9 @@ export function getPageTitle(
 
     case "FAILED":
       return "Processing failed";
+
+    case "CANCELLED":
+      return "Processing cancelled";
 
     default:
       return "Job status unknown";
@@ -74,6 +80,9 @@ export function getStatusDescription(
 
     case "FAILED":
       return "Could not process file";
+
+    case "CANCELLED":
+      return "Job was cancelled";
 
     default:
       return "Unknown job status";

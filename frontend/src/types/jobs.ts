@@ -1,4 +1,9 @@
-export type JobStatusValue = "QUEUED" | "RUNNING" | "SUCCESS" | "FAILED";
+export type JobStatusValue =
+  | "QUEUED"
+  | "RUNNING"
+  | "SUCCESS"
+  | "FAILED"
+  | "CANCELLED";
 
 export type CreateJobResponse = {
   id: number;

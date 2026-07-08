@@ -5,6 +5,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import status
 from pathlib import Path
 from typing import Any
+from django.utils import timezone
 
 from .models import Job
 from .tasks import process_job
@@ -29,7 +30,7 @@ def serialize_create_job_response(job: Job) -> dict[str, int | str]:
     }
 
 
-def serialize_job_status(job: Job) -> dict[str, int | str]:
+def serialize_job_status(job: Job) -> dict[str, Any]:
     data = {
         "id": job.id,
         "fileName": job.file_name,
@@ -144,3 +145,43 @@ def get_job_result(request, job_id: int) -> Response:
         )
 
     return Response(serialize_job_result(job, request))
+
+
+@api_view(["POST"])
+def cancel_job(request, job_id: int) -> Response:
+    job = find_job(job_id)
+
+    if job is None:
+        return Response(
+            {"detail": "Job not found."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    if job.status in {
+        Job.Status.SUCCESS,
+        Job.Status.FAILED,
+        Job.Status.CANCELLED,
+    }:
+        return Response(
+            {"detail": f"Job is already {job.status}."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    job.cancel_requested = True
+
+    if job.status == Job.Status.QUEUED:
+        job.status = Job.Status.CANCELLED
+        job.error_message = "Job was cancelled before it started."
+        job.completed_at = timezone.now()
+        job.save(
+            update_fields=[
+                "cancel_requested",
+                "status",
+                "error_message",
+                "completed_at",
+            ]
+        )
+    else:
+        job.save(update_fields=["cancel_requested"])
+
+    return Response({"detail": "Cancellation requested."})

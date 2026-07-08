@@ -7,9 +7,12 @@ from openai import (
 
 from .models import Job
 from .services.file_processor import (
+    JobCancelledError,
     apply_regex_replacement,
+    ensure_job_not_cancelled,
     get_target_columns,
     load_dataframe,
+    mark_job_cancelled,
     mark_job_failed,
     mark_job_running,
     mark_job_success,
@@ -34,6 +37,8 @@ def process_job_sync(job_id: int) -> None:
         mark_job_running(job)
 
         processed_instruction = convert_instruction(job.instruction)
+        ensure_job_not_cancelled(job)
+
         job.regex_pattern = processed_instruction["regex_pattern"]
         job.replacement = processed_instruction["replacement"]
         job.target_columns = processed_instruction["target_columns"]
@@ -41,6 +46,8 @@ def process_job_sync(job_id: int) -> None:
 
         input_path = validate_input_file(job)
         df = load_dataframe(input_path)
+        ensure_job_not_cancelled(job)
+
         job.row_count = len(df)
         job.save(update_fields=["row_count"])
 
@@ -52,6 +59,8 @@ def process_job_sync(job_id: int) -> None:
             target_columns=target_columns,
             job=job,
         )
+        ensure_job_not_cancelled(job)
+
         column_headers, preview_rows, row_count = save_processed_result(
             job,
             processed_df,
@@ -64,8 +73,11 @@ def process_job_sync(job_id: int) -> None:
             preview_rows=preview_rows,
         )
 
+        ensure_job_not_cancelled(job)
         mark_job_success(job)
 
+    except JobCancelledError:
+        mark_job_cancelled(job)
     except RETRY_ERRORS:
         raise
     except Exception as e:

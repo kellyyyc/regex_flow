@@ -15,7 +15,16 @@ REGEX_TIMEOUT = 0.1
 PROGRESS_UPDATE_INTERVAL = 1000
 
 
+class JobCancelledError(Exception):
+    pass
+
+
 def mark_job_running(job: Job) -> None:
+    job.refresh_from_db(fields=["cancel_requested"])
+
+    if job.cancel_requested:
+        raise JobCancelledError("Job was cancelled before it started.")
+
     job.status = Job.Status.RUNNING
     job.error_message = ""
     job.num_processed = 0
@@ -44,6 +53,20 @@ def mark_job_failed(job: Job, error_message: str) -> None:
     job.error_message = error_message
     job.completed_at = timezone.now()
     job.save(update_fields=["status", "error_message", "completed_at"])
+
+
+def mark_job_cancelled(job: Job) -> None:
+    job.status = Job.Status.CANCELLED
+    job.error_message = "Job was cancelled by the user."
+    job.completed_at = timezone.now()
+    job.save(update_fields=["status", "error_message", "completed_at"])
+
+
+def ensure_job_not_cancelled(job: Job) -> None:
+    job.refresh_from_db(fields=["cancel_requested"])
+
+    if job.cancel_requested:
+        raise JobCancelledError("Job was cancelled by the user.")
 
 
 def validate_input_file(job: Job) -> str:
@@ -92,6 +115,7 @@ def apply_regex_replacement(
     job: Job,
 ) -> tuple[pd.DataFrame, int]:
     compiled_pattern = regex.compile(pattern)
+    ensure_job_not_cancelled(job)
 
     for column in target_columns:
         if not pd.api.types.is_string_dtype(df[column]):
@@ -130,6 +154,7 @@ def apply_regex_replacement(
             changed_row_count += 1
 
         if index % PROGRESS_UPDATE_INTERVAL == 0 or index == total_rows:
+            ensure_job_not_cancelled(job)
             job.num_processed = index
             job.changed_row_count = changed_row_count
             job.save(update_fields=["num_processed", "changed_row_count"])

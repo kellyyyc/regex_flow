@@ -7,6 +7,7 @@ class Job(models.Model):
         RUNNING = "RUNNING", "Running"
         SUCCESS = "SUCCESS", "Success"
         FAILED = "FAILED", "Failed"
+        CANCELLED = "CANCELLED", "Cancelled"
 
     input_file = models.FileField(upload_to="uploads/")
     result_file = models.FileField(upload_to="results/", blank=True)
@@ -28,6 +29,7 @@ class Job(models.Model):
     changed_row_count = models.PositiveBigIntegerField(default=0)
     column_headers = models.JSONField(default=list, blank=True)
     preview_rows = models.JSONField(default=list, blank=True)
+    cancel_requested = models.BooleanField(default=False)
 
     error_message = models.TextField(blank=True)
 
