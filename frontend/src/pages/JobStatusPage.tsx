@@ -57,9 +57,9 @@ export function JobStatusPage() {
         console.error("Failed to fetch job status", err);
 
         if (!cancelled) {
-          if (isNotFoundError(err)) {
-            setJob(null);
-          } else {
+          setJob(null);
+
+          if (!isNotFoundError(err)) {
             setError("Failed to load job status.");
           }
         }
