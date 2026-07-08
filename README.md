@@ -1,5 +1,17 @@
 # Regex Flow
 
+## Architecture Overview
+
+Regex Flow uses an asynchronous processing pipeline so uploads return quickly and long-running file transformations do not block the web request.
+
+```text
+React -> Django API -> Celery task -> Redis -> PySpark/file processor -> result file -> React polling/result view
+```
+
+The React frontend uploads a file and natural-language instruction to the Django API. Django validates the request, creates a persisted job record, queues a Celery task, and immediately returns the job ID. Django does not perform heavy parsing, regex generation, or file transformation inside the request/response cycle.
+
+Celery runs the background processing work. Redis is used as the Celery broker/result backend and as the cache for generated regex patterns. The worker validates the input file, converts Excel uploads to CSV when needed, generates or reuses the regex, applies the transformation through the file processor, writes the processed result file, and updates job status/progress. The frontend polls the status endpoint until the job reaches `SUCCESS` or `FAILED`, then displays the paginated result view.
+
 ## Run Locally
 
 Create a root `.env` file before starting the app. The frontend, backend, Celery worker, Redis, and Spark settings are all read from this single file.
