@@ -26,10 +26,6 @@ export function HomePage() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("instruction", instruction);
-
     try {
       setIsSubmitting(true);
       const job = await createProcessingJob(file, instruction);
