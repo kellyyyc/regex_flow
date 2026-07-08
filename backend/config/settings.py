@@ -31,7 +31,7 @@ def get_env_list(name: str, default: str = "") -> list[str]:
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-SECRET_KEY = os.getenv("SECRET_KEY", "fake-secret-key")
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
@@ -98,7 +98,10 @@ CORS_ALLOWED_ORIGINS = get_env_list(
     "http://localhost:5173",
 )
 
-CSRF_TRUSTED_ORIGINS = get_env_list("CSRF_TRUSTED_ORIGINS")
+CSRF_TRUSTED_ORIGINS = get_env_list(
+    "CSRF_TRUSTED_ORIGINS",
+    "http://localhost:5173",
+)
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -170,3 +173,5 @@ CACHES = {
         "TIMEOUT": 60 * 60,
     }
 }
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
