@@ -2,8 +2,8 @@ services:
   caddy:
     image: caddy:2-alpine
     environment:
-      DOMAIN: ${DOMAIN:-kellywebsite.com}
-      WWW_DOMAIN: ${WWW_DOMAIN:-www.kellywebsite.com}
+      DOMAIN: ${DOMAIN:-demo.kellywebsite.com}
+      WWW_DOMAIN: ${WWW_DOMAIN:-www.demo.kellywebsite.com}
     ports:
       - "80:80"
       - "443:443"
@@ -51,8 +51,8 @@ services:
       context: ./frontend
     command: npm run dev -- --host 0.0.0.0
     environment:
-      VITE_API_URL: ${VITE_API_URL:-https://kellywebsite.com/api}
-      VITE_ALLOWED_HOSTS: ${VITE_ALLOWED_HOSTS:-kellywebsite.com,www.kellywebsite.com}
+      VITE_API_URL: ${VITE_API_URL:-https://demo.kellywebsite.com/api}
+      VITE_ALLOWED_HOSTS: ${VITE_ALLOWED_HOSTS:-demo.kellywebsite.com,www.demo.kellywebsite.com}
     restart: unless-stopped
     depends_on:
       - backend

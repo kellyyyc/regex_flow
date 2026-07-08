@@ -1,8 +1,6 @@
 services:
   redis:
     image: redis:7-alpine
-    ports:
-      - "6379:6379"
 
   backend:
     build:
@@ -36,13 +34,13 @@ services:
       context: ./frontend
     command: npm run dev -- --host 0.0.0.0
     environment:
-      VITE_API_URL: ${VITE_API_URL:-http://localhost:8000/api}
-      VITE_ALLOWED_HOSTS: ${VITE_ALLOWED_HOSTS:-localhost,127.0.0.1}
+      VITE_API_URL: ${VITE_API_URL:-http://demo.kellywebsite.com:8000/api}
+      VITE_ALLOWED_HOSTS: ${VITE_ALLOWED_HOSTS:-localhost,127.0.0.1,demo.kellywebsite.com,www.demo.kellywebsite.com}
     volumes:
       - ./frontend:/app
       - /app/node_modules
     ports:
-      - "5173:5173"
+      - "80:5173"
     depends_on:
       - backend
 
