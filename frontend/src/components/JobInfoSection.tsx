@@ -46,6 +46,14 @@ export function JobInfoSection({ job, children }: JobInfoSectionProps) {
           {job.replacement != null ? `"${job.replacement}"` : "Not available."}
         </dd>
       </div>
+      <div className="sm:col-span-2">
+        <dt className="text-sm font-medium text-slate-500">Target Columns</dt>
+        <dd className="mt-1 break-all rounded-lg bg-white px-3 py-2 font-mono text-sm text-slate-900">
+          {job.targetColumns.length > 0
+            ? job.targetColumns.join(", ")
+            : "Not available."}
+        </dd>
+      </div>
 
       {children}
     </dl>

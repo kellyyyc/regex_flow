@@ -16,6 +16,7 @@ export type JobStatus = {
 
   regexPattern: string;
   replacement: string;
+  targetColumns: string[];
 
   numProcessed: number;
   rowCount: number;

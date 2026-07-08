@@ -38,6 +38,7 @@ def serialize_job_status(job: Job) -> dict[str, int | str]:
         "instruction": job.instruction,
         "regexPattern": job.regex_pattern,
         "replacement": job.replacement,
+        "targetColumns": job.target_columns,
         "numProcessed": job.num_processed,
         "rowCount": job.row_count,
         "changedRowCount": job.changed_row_count,
