@@ -5,13 +5,13 @@ import { getJobResult } from "../api/jobs";
 import {
   parseJobId,
   getPageTitle,
-  getStatusClassName,
   formatCount,
 } from "../shared/utils";
 import { JobPreviewTable } from "../components/JobPreviewTable";
 
 import type { JobResult } from "../types/jobs";
 import { JobInfoSection } from "../components/JobInfoSection";
+import { StatusBadge } from "../components/StatusBadge";
 
 export function JobResultPage() {
   const { jobId } = useParams();
@@ -88,15 +88,7 @@ export function JobResultPage() {
               </p>
             )}
           </div>
-          {result != null && (
-            <span
-              className={`rounded-full px-3 py-1 text-sm font-semibold ${getStatusClassName(
-                result.status,
-              )}`}
-            >
-              {result.status}
-            </span>
-          )}
+          {result != null && <StatusBadge status={result.status} />}
         </div>
 
         <div className="mt-2">

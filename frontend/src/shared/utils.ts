@@ -10,22 +10,6 @@ export function parseJobId(jobId: string | undefined) {
   return parsed;
 }
 
-export function getStatusClassName(status: JobStatusValue | null) {
-  switch (status) {
-    case "SUCCESS":
-      return "bg-green-100 text-green-700";
-
-    case "FAILED":
-      return "bg-red-100 text-red-700";
-
-    case "CANCELLED":
-      return "bg-slate-200 text-slate-700";
-
-    default:
-      return "bg-orange-100 text-yellow-700";
-  }
-}
-
 export function getPageTitle(
   isLoading: boolean,
   error: string,

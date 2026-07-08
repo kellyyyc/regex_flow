@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link, Navigate, useParams } from "react-router";
 import { isNotFoundError, getJobStatus, cancelJob } from "../api/jobs";
 import {
-  getStatusClassName,
   getPageTitle,
   getStatusDescription,
   parseJobId,
@@ -11,6 +10,7 @@ import {
 
 import type { JobStatus } from "../types/jobs";
 import { JobInfoSection } from "../components/JobInfoSection";
+import { StatusBadge } from "../components/StatusBadge";
 
 export function JobStatusPage() {
   const { jobId } = useParams();
@@ -135,15 +135,7 @@ export function JobStatusPage() {
             )}
           </div>
 
-          {job != null && (
-            <span
-              className={`rounded-full px-3 py-1 text-sm font-semibold ${getStatusClassName(
-                job.status,
-              )}`}
-            >
-              {job.status}
-            </span>
-          )}
+          {job != null && <StatusBadge status={job.status} />}
         </div>
 
         {!isLoading && job != null && (

@@ -3,9 +3,9 @@ import { Link } from "react-router";
 import { getAllJobs } from "../api/jobs";
 import {
   formatCreatedDate,
-  getStatusClassName,
   getStatusDescription,
 } from "../shared/utils";
+import { StatusBadge } from "../components/StatusBadge";
 
 import type { JobStatus } from "../types/jobs";
 
@@ -90,13 +90,7 @@ export function JobListPage() {
                   </p>
                 </div>
 
-                <span
-                  className={`rounded-full px-3 py-1 text-sm font-semibold ${getStatusClassName(
-                    job.status,
-                  )}`}
-                >
-                  {job.status}
-                </span>
+                <StatusBadge status={job.status} />
               </Link>
             ))
           )}
