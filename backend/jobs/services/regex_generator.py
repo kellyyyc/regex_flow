@@ -1,7 +1,8 @@
 import json
 import os
-
+import hashlib
 from openai import OpenAI
+from django.core.cache import cache
 
 from jobs.services.regex_validator import is_safe_regex
 
@@ -43,7 +44,21 @@ def get_openai_client() -> OpenAI:
     return OpenAI(api_key=api_key)
 
 
+def get_instruction_cache_key(instruction: str) -> str:
+    normalised = " ".join(instruction.strip().lower().split())
+    digest = hashlib.sha256(normalised.encode("utf-8")).hexdigest()
+
+    return f"instruction:{digest}"
+
+
 def convert_instruction(instruction) -> dict:
+    cache_key = get_instruction_cache_key(instruction)
+
+    cached_result = cache.get(cache_key)
+
+    if cached_result is not None:
+        return cached_result
+
     client = get_openai_client()
 
     response = client.responses.create(
@@ -75,26 +90,16 @@ def convert_instruction(instruction) -> dict:
     if not is_safe:
         raise ValueError(error_message)
 
-    replacement = str(parsed.get("replacement", ""))
-    raw_target_columns = parsed.get("target_columns", [])
-
-    if not isinstance(raw_target_columns, list):
-        raise ValueError("OpenAI response must return target_columns as a list.")
-
-    target_columns = [
-        str(col).strip() for col in raw_target_columns if str(col).strip()
-    ]
-
-    print(
-        {
-            "regex_pattern": regex_pattern,
-            "replacement": replacement,
-            "target_columns": target_columns,
-        }
-    )
-
-    return {
+    result = {
         "regex_pattern": regex_pattern,
-        "replacement": replacement,
-        "target_columns": target_columns,
+        "replacement": str(parsed.get("replacement", "")),
+        "target_columns": [
+            str(col).strip()
+            for col in parsed.get("target_columns", [])
+            if str(col).strip()
+        ],
     }
+
+    cache.set(cache_key, result, timeout=60 * 60 * 24)
+
+    return result

@@ -147,3 +147,15 @@ CELERY_RESULT_BACKEND = os.getenv(
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": os.environ.get(
+            "REDIS_CACHE_URL",
+            "redis://localhost:6379/2",
+        ),
+        "KEY_PREFIX": "regex_flow",
+        "TIMEOUT": 60 * 60,
+    }
+}
