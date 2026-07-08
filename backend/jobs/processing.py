@@ -27,6 +27,9 @@ def process_job_sync(job_id: int) -> None:
 
         input_path = validate_input_file(job)
         df = load_dataframe(input_path)
+        job.row_count = len(df)
+        job.save(update_fields=["row_count"])
+
         target_columns = get_target_columns(df, job.target_columns)
         processed_df, changed_row_count = apply_regex_replacement(
             df=df,
