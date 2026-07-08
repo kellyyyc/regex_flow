@@ -9,3 +9,4 @@ redis
 openai
 python-dotenv
 pyspark
+gunicorn
