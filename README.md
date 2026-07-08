@@ -12,6 +12,19 @@ The React frontend uploads a file and natural-language instruction to the Django
 
 Celery runs the background processing work. Redis is used as the Celery broker/result backend and as the cache for generated regex patterns. The worker validates the input file, converts Excel uploads to CSV when needed, generates or reuses the regex, applies the transformation through the file processor, writes the processed result file, and updates job status/progress. The frontend polls the status endpoint until the job reaches `SUCCESS` or `FAILED`, then displays the stored preview and result download link.
 
+## Implemented Features
+
+- React frontend for file upload, job submission, job status polling, result preview, and result download.
+- Django REST API for job creation, job listing, job status, cancellation, result preview, and downloads.
+- Celery worker for asynchronous background processing.
+- Redis used as the Celery broker/result backend and regex cache.
+- LLM-based natural-language to regex generation.
+- Regex validation before processing.
+- CSV and Excel upload support, with Excel converted to CSV.
+- Persisted job status, progress, errors, preview rows, and result files.
+- Docker Compose setup for local development and production deployment.
+- Caddy-based HTTPS deployment on a single VM.
+
 ## Processing Pipeline
 
 1. The user uploads a CSV or Excel file with a natural-language replacement instruction.
@@ -102,7 +115,7 @@ Caddy serves HTTPS on ports `80` and `443`. It proxies `/api/*` and `/admin*` to
 
 ## Tradeoffs / Limitations
 
-- The active Celery path uses the file processor instead of PySpark. This keeps the demo reliable end-to-end, but does not provide distributed processing for million-row files.
+- The active Celery path currently uses the file processor instead of PySpark. This keeps the demo reliable end-to-end, but does not provide distributed processing for million-row files.
 - A single `Job` model stores upload, processing, result, status, progress, and preview data. This keeps the API simple, but a larger system would split uploads from transformation jobs.
 - The frontend uses a single-step upload/instruction flow. This is fast to use, but users cannot preview columns or manually choose target columns before processing.
 - Redis is used for Celery broker/result backend and regex caching. Cancellation is app-level through `cancel_requested`; the app does not persist Celery task IDs for direct retries.
@@ -111,3 +124,11 @@ Caddy serves HTTPS on ports `80` and `443`. It proxies `/api/*` and `/admin*` to
 - The production Compose setup is demo-friendly on one VM. The frontend still uses Vite dev server, so a stronger setup would serve a built static bundle.
 - SQLite keeps the demo small, but Postgres would be better for concurrent users, larger job history, and frequent progress updates.
 - The result endpoint returns stored preview rows plus a CSV download URL. It does not provide true pagination through the full output.
+
+## Future Improvements
+
+- Replace the Vite dev server in production with a built static frontend served through Caddy or Nginx.
+- Move the regex replacement step into Spark DataFrame operations for distributed processing.
+- Split the current `Job` model into separate upload, transformation job, and result models.
+- Add column preview and target-column selection before processing.
+- Replace SQLite with Postgres for stronger concurrent write support.
