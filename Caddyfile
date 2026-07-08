@@ -9,8 +9,10 @@
         reverse_proxy backend:8000
     }
 
-    handle /media/* {
-        reverse_proxy backend:8000
+    handle_path /media/* {
+        root * /srv/media
+        header Content-Disposition "attachment"
+        file_server
     }
 
     handle {
