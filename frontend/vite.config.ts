@@ -6,6 +6,8 @@ const allowedHosts = process.env.VITE_ALLOWED_HOSTS
   ?.split(",")
   .map((host) => host.trim())
   .filter(Boolean);
+const devApiProxyTarget =
+  process.env.VITE_DEV_API_PROXY_TARGET || "http://backend:8000";
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -14,5 +16,11 @@ export default defineConfig({
     allowedHosts: allowedHosts?.length
       ? allowedHosts
       : ["localhost", "127.0.0.1", "kellywebsite.com", "www.kellywebsite.com"],
+    proxy: {
+      "/api": {
+        target: devApiProxyTarget,
+        changeOrigin: true,
+      },
+    },
   },
 });

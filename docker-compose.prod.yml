@@ -50,7 +50,7 @@ services:
       context: ./frontend
     command: npm run dev -- --host 0.0.0.0
     environment:
-      VITE_API_URL: ${VITE_API_URL:-https://demo.kellywebsite.com/api}
+      VITE_API_URL: ${VITE_API_URL:-/api}
       VITE_ALLOWED_HOSTS: ${VITE_ALLOWED_HOSTS:-demo.kellywebsite.com,www.demo.kellywebsite.com}
     restart: unless-stopped
     depends_on:
