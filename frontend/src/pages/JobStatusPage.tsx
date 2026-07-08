@@ -123,7 +123,7 @@ export function JobStatusPage() {
             ) : error ? (
               <p className="mt-2 text-red-600">{error}</p>
             ) : job == null ? (
-              <p className="mt-2 text-slate-600">No status available.</p>
+              <p className="mt-2 text-slate-600">Job not found.</p>
             ) : (
               <p className="mt-2 text-slate-600">
                 {getStatusDescription(
