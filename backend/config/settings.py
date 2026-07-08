@@ -22,16 +22,20 @@ ROOT_DIR = BASE_DIR.parent
 load_dotenv(ROOT_DIR / ".env")
 
 
+def get_env_list(name: str, default: str = "") -> list[str]:
+    return [
+        value.strip() for value in os.getenv(name, default).split(",") if value.strip()
+    ]
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-ye*y2=(9hb5&i7u#!btel#k-ay4c*a+o$c$=r$fx+^)&a3sa63"
+SECRET_KEY = os.getenv("SECRET_KEY", "fake-secret-key")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ["localhost", "backend"]
+ALLOWED_HOSTS = get_env_list("ALLOWED_HOSTS", "localhost,127.0.0.1,backend")
 
 
 # Application definition
@@ -50,13 +54,13 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -89,9 +93,12 @@ DATABASES = {
     }
 }
 # CORS policy
-CORS_ALLOWED_ORIGINS = [
+CORS_ALLOWED_ORIGINS = get_env_list(
+    "CORS_ALLOWED_ORIGINS",
     "http://localhost:5173",
-]
+)
+
+CSRF_TRUSTED_ORIGINS = get_env_list("CSRF_TRUSTED_ORIGINS")
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -127,7 +134,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Store uploaded files
 MEDIA_URL = "/media/"
