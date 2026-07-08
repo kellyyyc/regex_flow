@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, useParams } from "react-router";
-import { isNotFoundError, getJobStatus } from "../api/jobs";
+import { isNotFoundError, getJobStatus, cancelJob } from "../api/jobs";
 import {
   getStatusClassName,
   getPageTitle,
@@ -20,6 +20,7 @@ export function JobStatusPage() {
 
   const [job, setJob] = useState<JobStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCancelling, setIsCancelling] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -45,7 +46,8 @@ export function JobStatusPage() {
           const isFinished =
             data == null ||
             data.status === "SUCCESS" ||
-            data.status === "FAILED";
+            data.status === "FAILED" ||
+            data.status === "CANCELLED";
 
           if (!isFinished) {
             timeoutId = setTimeout(fetchStatus, 3000);
@@ -81,6 +83,27 @@ export function JobStatusPage() {
   if (isInvalidJobId) {
     return <Navigate to="/jobs" replace />;
   }
+
+  const showCancelButton =
+    job != null &&
+    (job.status === "QUEUED" || job.status === "RUNNING") &&
+    !isCancelling;
+
+  const handleCancel = async () => {
+    if (job == null) {
+      return;
+    }
+
+    try {
+      setIsCancelling(true);
+      setError("");
+      await cancelJob(job.id);
+    } catch (err) {
+      console.error("Failed to cancel job", err);
+      setError("Failed to cancel job.");
+      setIsCancelling(false);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-slate-100 p-8">
@@ -159,6 +182,18 @@ export function JobStatusPage() {
                 >
                   View result
                 </Link>
+              </div>
+            ) : null}
+
+            {showCancelButton ? (
+              <div className="flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-50"
+                >
+                  Cancel job
+                </button>
               </div>
             ) : null}
           </div>

@@ -69,3 +69,7 @@ export const getJobResult = async (id: number): Promise<JobResult | null> => {
     throw err;
   }
 };
+
+export const cancelJob = async (id: number): Promise<void> => {
+  await api.post(`/jobs/${id}/cancel/`);
+};
