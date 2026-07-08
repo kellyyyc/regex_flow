@@ -27,17 +27,30 @@ export function JobStatusPage() {
     if (isInvalidJobId) return;
 
     let cancelled = false;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    let hasLoadedOnce = false;
 
     const fetchStatus = async () => {
       try {
-        setIsLoading(true);
+        if (!hasLoadedOnce) {
+          setIsLoading(true);
+        }
         setError("");
-        setJob(null);
 
         const data = await getJobStatus(parsedJobId);
 
         if (!cancelled) {
+          hasLoadedOnce = true;
           setJob(data);
+
+          const isFinished =
+            data == null ||
+            data.status === "SUCCESS" ||
+            data.status === "FAILED";
+
+          if (!isFinished) {
+            timeoutId = setTimeout(fetchStatus, 3000);
+          }
         }
       } catch (err) {
         console.error("Failed to fetch job status", err);
@@ -60,6 +73,9 @@ export function JobStatusPage() {
 
     return () => {
       cancelled = true;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
     };
   }, [parsedJobId, isInvalidJobId]);
 
