@@ -12,6 +12,17 @@ The React frontend uploads a file and natural-language instruction to the Django
 
 Celery runs the background processing work. Redis is used as the Celery broker/result backend and as the cache for generated regex patterns. The worker validates the input file, converts Excel uploads to CSV when needed, generates or reuses the regex, applies the transformation through the file processor, writes the processed result file, and updates job status/progress. The frontend polls the status endpoint until the job reaches `SUCCESS` or `FAILED`, then displays the paginated result view.
 
+## Processing Pipeline
+
+1. The user uploads a CSV or Excel file with a natural-language replacement instruction.
+2. The Django API creates a persisted `Job` with `QUEUED` status and dispatches the Celery task.
+3. The Celery worker validates that the uploaded file exists and has a supported format.
+4. Excel uploads are converted to CSV before the large-scale processing path runs.
+5. The LLM converts the natural-language instruction into a regex pattern, reusing the Redis cache when the same instruction has already been processed.
+6. The generated regex is validated before it is applied to the file.
+7. The file processor applies the replacement and writes the processed output as a CSV result file.
+8. The frontend polls the job status endpoint for progress and then displays the paginated preview/result when processing completes.
+
 ## Run Locally
 
 Create a root `.env` file before starting the app. The frontend, backend, Celery worker, Redis, and Spark settings are all read from this single file.
