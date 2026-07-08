@@ -70,7 +70,14 @@ def ensure_job_not_cancelled(job: Job) -> None:
 
 
 def validate_input_file(job: Job) -> str:
-    input_path = job.input_file.path
+    if not job.input_file:
+        raise ValueError("No input file is attached to this job.")
+
+    input_path = Path(job.input_file.path)
+
+    if not input_path.exists():
+        raise ValueError("Uploaded file could not be found.")
+
     extension = Path(input_path).suffix.lower()
 
     if extension not in SUPPORTED_EXTENSIONS:
@@ -78,7 +85,7 @@ def validate_input_file(job: Job) -> str:
             "Unsupported file type. Only CSV and XLSX files are supported."
         )
 
-    return input_path
+    return str(input_path)
 
 
 def convert_xlsx_to_csv(input_path: str) -> str:
