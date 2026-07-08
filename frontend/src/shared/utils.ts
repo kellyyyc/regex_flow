@@ -86,3 +86,7 @@ export function formatCreatedDate(value: string) {
     timeStyle: "short",
   }).format(new Date(value));
 }
+
+export function formatCount(count: number) {
+  return count.toLocaleString("en-US");
+}

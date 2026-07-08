@@ -36,6 +36,8 @@ def serialize_job_status(job: Job) -> dict[str, int | str]:
         "status": job.status,
         "createdDate": job.created_at.isoformat(),
         "instruction": job.instruction,
+        "regexPattern": job.regex_pattern,
+        "replacement": job.replacement,
         "numProcessed": job.num_processed,
         "rowCount": job.row_count,
         "changedRowCount": job.changed_row_count,

@@ -6,13 +6,12 @@ import {
   parseJobId,
   getPageTitle,
   getStatusClassName,
-  formatCreatedDate,
+  formatCount,
 } from "../shared/utils";
 import { JobPreviewTable } from "../components/JobPreviewTable";
 
 import type { JobResult } from "../types/jobs";
-
-const formatCount = (count: number) => count.toLocaleString("en-US");
+import { JobInfoSection } from "../components/JobInfoSection";
 
 export function JobResultPage() {
   const { jobId } = useParams();
@@ -103,49 +102,7 @@ export function JobResultPage() {
         <div className="mt-2">
           {!isLoading && !error && result != null ? (
             <div className="space-y-4 ">
-              <dl className="grid gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-2">
-                <div className="sm:col-span-2">
-                  <dt className="text-sm font-medium text-slate-500">
-                    Created Date
-                  </dt>
-                  <dd className="mt-1 text-sm text-slate-900">
-                    {formatCreatedDate(result.createdDate)}
-                  </dd>
-                </div>
-                <div className="sm:col-span-2">
-                  <dt className="text-sm font-medium text-slate-500">
-                    File Name
-                  </dt>
-                  <dd className="mt-1 text-sm text-slate-900">
-                    {result.fileName}
-                  </dd>
-                </div>
-                <div className="sm:col-span-2">
-                  <dt className="text-sm font-medium text-slate-500">
-                    User Input - Natural Language
-                  </dt>
-                  <dd className="mt-1 text-sm text-slate-900">
-                    {result.instruction}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-slate-500">
-                    LLM Output - Regex Pattern
-                  </dt>
-                  <dd className="mt-1 break-all rounded-lg bg-white px-3 py-2 font-mono text-sm text-slate-900">
-                    {result.regexPattern || "Not available."}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-slate-500">
-                    Replacement Value
-                  </dt>
-                  <dd className="mt-1 rounded-lg bg-white px-3 py-2 font-mono text-sm text-slate-900">
-                    {result.replacement != null
-                      ? `"${result.replacement}"`
-                      : "Not available."}
-                  </dd>
-                </div>
+              <JobInfoSection job={result}>
                 <div className="sm:col-span-2">
                   <dt className="text-sm font-medium text-slate-500">
                     Rows Changed
@@ -155,7 +112,7 @@ export function JobResultPage() {
                     {formatCount(result.rowCount)} rows changed
                   </dd>
                 </div>
-              </dl>
+              </JobInfoSection>
 
               {result?.resultFileUrl ? (
                 <div className="flex flex-wrap gap-3">

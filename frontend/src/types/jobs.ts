@@ -14,6 +14,9 @@ export type JobStatus = {
   instruction: string;
   createdDate: string;
 
+  regexPattern: string;
+  replacement: string;
+
   numProcessed: number;
   rowCount: number;
   changedRowCount: number;

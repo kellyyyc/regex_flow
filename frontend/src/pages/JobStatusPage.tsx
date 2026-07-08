@@ -5,13 +5,12 @@ import {
   getStatusClassName,
   getPageTitle,
   getStatusDescription,
-  formatCreatedDate,
   parseJobId,
+  formatCount,
 } from "../shared/utils";
 
 import type { JobStatus } from "../types/jobs";
-
-const formatCount = (count: number) => count.toLocaleString("en-US");
+import { JobInfoSection } from "../components/JobInfoSection";
 
 export function JobStatusPage() {
   const { jobId } = useParams();
@@ -126,20 +125,7 @@ export function JobStatusPage() {
 
         {!isLoading && job != null && (
           <div className="mt-2 space-y-4">
-            <dl className="grid gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-2">
-              <div className="sm:col-span-2">
-                <dt className="text-sm font-medium text-slate-500">
-                  Created Date
-                </dt>
-                <dd className="mt-1 text-sm text-slate-900">
-                  {formatCreatedDate(job.createdDate)}
-                </dd>
-              </div>
-              <div className="sm:col-span-2">
-                <dt className="text-sm font-medium text-slate-500">File</dt>
-                <dd className="mt-1 text-sm text-slate-900">{job.fileName}</dd>
-              </div>
-
+            <JobInfoSection job={job}>
               {job.status === "FAILED" && (
                 <div className="sm:col-span-2">
                   <dt className="text-sm font-medium text-slate-500">
@@ -163,7 +149,7 @@ export function JobStatusPage() {
                   </dd>
                 </div>
               )}
-            </dl>
+            </JobInfoSection>
 
             {job.status === "SUCCESS" ? (
               <div className="flex flex-wrap gap-3">
