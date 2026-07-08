@@ -8,9 +8,14 @@ export function HomePage() {
   const navigate = useNavigate();
   const [file, setFile] = useState<File | null>(null);
   const [instruction, setInstruction] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (isSubmitting) {
+      return;
+    }
 
     if (!file) {
       return;
@@ -26,9 +31,11 @@ export function HomePage() {
     formData.append("instruction", instruction);
 
     try {
+      setIsSubmitting(true);
       const job = await createProcessingJob(file, instruction);
 
       if (job == null) {
+        setIsSubmitting(false);
         return;
       }
 
@@ -36,6 +43,7 @@ export function HomePage() {
     } catch (error) {
       alert(`Failed to create job: ${error}`);
       console.error("Failed to create job", error);
+      setIsSubmitting(false);
     }
   };
 
@@ -98,10 +106,10 @@ export function HomePage() {
 
           <button
             type="submit"
-            disabled={!file || !instruction.trim()}
+            disabled={!file || !instruction.trim() || isSubmitting}
             className="rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-300"
           >
-            Start processing
+            {isSubmitting ? "Starting..." : "Start processing"}
           </button>
         </form>
       </section>
