@@ -3,7 +3,6 @@ services:
     image: caddy:2-alpine
     environment:
       DOMAIN: ${DOMAIN:-demo.kellywebsite.com}
-      WWW_DOMAIN: ${WWW_DOMAIN:-www.demo.kellywebsite.com}
     ports:
       - "80:80"
       - "443:443"
@@ -22,7 +21,7 @@ services:
   backend:
     build:
       context: ./backend
-    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --timeout 300 --access-logfile - --error-logfile -
     env_file:
       - ${APP_ENV_FILE:-.env}
     restart: unless-stopped
