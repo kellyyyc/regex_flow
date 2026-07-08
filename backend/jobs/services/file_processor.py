@@ -81,6 +81,21 @@ def validate_input_file(job: Job) -> str:
     return input_path
 
 
+def convert_xlsx_to_csv(input_path: str) -> str:
+    if Path(input_path).suffix.lower() != ".xlsx":
+        return input_path
+
+    df = pd.read_excel(input_path)
+
+    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".csv")
+    temp_path = temp_file.name
+    temp_file.close()
+
+    df.to_csv(temp_path, index=False)
+
+    return temp_path
+
+
 def load_dataframe(file_path: str) -> pd.DataFrame:
     extension = Path(file_path).suffix.lower()
 
@@ -166,22 +181,14 @@ def save_processed_result(
     job: Job,
     df: pd.DataFrame,
 ) -> tuple[list[str], list[dict[str, str | int | float | bool]], int]:
-    extension = Path(job.file_name).suffix.lower()
-    result_name = f"{Path(job.file_name).stem}_processed{extension}"
+    result_name = f"{Path(job.file_name).stem}_processed.csv"
 
-    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=extension)
+    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".csv")
     temp_path = temp_file.name
     temp_file.close()
 
     try:
-        if extension == ".csv":
-            df.to_csv(temp_path, index=False)
-        elif extension == ".xlsx":
-            df.to_excel(temp_path, index=False)
-        else:
-            raise ValueError(
-                "Unsupported file type. Only CSV and XLSX files are supported."
-            )
+        df.to_csv(temp_path, index=False)
 
         with open(temp_path, "rb") as result_file:
             job.result_file.save(result_name, File(result_file), save=False)

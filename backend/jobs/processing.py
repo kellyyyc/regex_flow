@@ -9,6 +9,7 @@ from .models import Job
 from .services.file_processor import (
     JobCancelledError,
     apply_regex_replacement,
+    convert_xlsx_to_csv,
     ensure_job_not_cancelled,
     get_target_columns,
     load_dataframe,
@@ -45,6 +46,7 @@ def process_job_sync(job_id: int) -> None:
         job.save(update_fields=["regex_pattern", "replacement", "target_columns"])
 
         input_path = validate_input_file(job)
+        input_path = convert_xlsx_to_csv(input_path)
         df = load_dataframe(input_path)
         ensure_job_not_cancelled(job)
 
