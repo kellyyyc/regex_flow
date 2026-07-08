@@ -41,7 +41,7 @@ export function JobResultPage() {
         console.error("Failed to fetch job result", err);
 
         if (!cancelled) {
-          setError("Failed to load job status.");
+          setError("Failed to load job result.");
         }
       } finally {
         if (!cancelled) {
